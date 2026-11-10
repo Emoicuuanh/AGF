@@ -1,0 +1,7 @@
+# Managed by Ansible (roles/hardware)
+network:
+  version: 2
+  ethernets:
+    {{ lidar_nic }}:
+      dhcp4: false
+      addresses: [{{ lidar_nic_address }}]

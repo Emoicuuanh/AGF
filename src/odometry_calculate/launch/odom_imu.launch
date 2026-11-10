@@ -1,0 +1,41 @@
+<launch>
+    <!-- PLC wheel speed + Livox gyro dead-reckoning, view /odom_imu and /odom_imu/path in rviz.
+         Re-sync to the current robot pose: rostopic pub -1 /odom_imu/reset std_msgs/Empty -->
+    <node name="odom_imu" pkg="odometry_calculate" type="odom_imu.py" output="screen">
+        <!-- same frames as /nav350laser/odom: NAV350 pose (nav_footprint) in odom.
+             Integration is still done for base_frame, child_frame is only the output -->
+        <param name="global_frame" value="odom"/>
+        <param name="base_frame" value="base_footprint"/>
+        <param name="child_frame" value="nav_footprint"/>
+        <!-- modbus: decode PLC registers directly (plc_driver doesn't publish /odom),
+             odom: read nav_msgs/Odometry from wheel_odom_topic -->
+        <param name="wheel_source" value="modbus"/>
+        <param name="modbus_topic" value="/modbus_wrapper/input"/>
+        <param name="vel_x_index" value="6"/>
+        <param name="vel_z_index" value="10"/>
+        <!-- re-sync to the TF pose when PLC auto_manual_sw (register 14) changes -->
+        <param name="reset_on_mode_change" value="true"/>
+        <param name="mode_index" value="14"/>
+        <!-- re-sync to the TF pose nav_back_delay s after the NAV350 mirror is back -->
+        <param name="reset_on_nav_back" value="true"/>
+        <!-- re-sync to the last NAV350 pose the moment the mirror is lost -->
+        <param name="reset_on_nav_lost" value="true"/>
+        <param name="mirror_topic" value="/mirror_detect"/>
+        <param name="nav_back_delay" value="0.5"/>
+        <param name="wheel_odom_topic" value="/odom"/>
+        <param name="imu_topic" value="/livox/imu"/>
+        <!-- false: use PLC twist.angular.z for yaw instead of the gyro -->
+        <param name="use_imu_yaw" value="true"/>
+        <!-- PLC speed is magnitude only, forward/backward latched at every start:
+             cmd: sign of the command sent to the PLC (cmd_topic)
+             imu: from Livox accel (latch_vel), plc: trust the PLC sign -->
+        <param name="vel_sign_source" value="cmd"/>
+        <param name="cmd_topic" value="/cmd_vel_send_plc"/>
+        <param name="cmd_timeout" value="2.0"/>
+        <param name="latch_vel" value="0.03"/>
+        <!-- -1.0 if the decided direction is still the wrong way round -->
+        <param name="vel_scale" value="1.0"/>
+        <param name="publish_rate" value="20.0"/>
+        <param name="path_length" value="2000"/>
+    </node>
+</launch>

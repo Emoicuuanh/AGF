@@ -1,0 +1,60 @@
+---
+- name: Add robot user to hardware groups (serial, camera, audio)
+  ansible.builtin.user:
+    name: "{{ robot_user }}"
+    groups: "{{ robot_groups }}"
+    append: true
+
+# ModemManager grabs new /dev/ttyACM* devices and sends AT commands to them
+- name: Remove ModemManager (interferes with serial devices)
+  ansible.builtin.apt:
+    name: modemmanager
+    state: absent
+
+# /dev/ttyAMA0 is used by agv_common_library/node_manager.py on Raspberry Pi
+- name: Stop serial console on ttyAMA0
+  ansible.builtin.systemd:
+    name: serial-getty@ttyAMA0.service
+    enabled: false
+    state: stopped
+    masked: true
+  failed_when: false
+
+- name: Install udev rules for stable device names
+  ansible.builtin.template:
+    src: 99-agf-devices.rules.j2
+    dest: /etc/udev/rules.d/99-agf-devices.rules
+    mode: "0644"
+  register: udev_rules
+
+- name: Reload udev rules
+  ansible.builtin.shell: udevadm control --reload-rules && udevadm trigger
+  when: udev_rules.changed
+
+- name: Larger UDP buffers for point-cloud lidars
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/60-agf-lidar.conf
+    content: |
+      net.core.rmem_max=26214400
+      net.core.rmem_default=26214400
+      net.core.wmem_max=26214400
+      net.core.wmem_default=26214400
+    mode: "0644"
+  register: sysctl_conf
+  when: sysctl_net_buffers | bool
+
+- name: Apply sysctl settings
+  ansible.builtin.command: sysctl --system
+  when: sysctl_conf.changed | default(false)
+
+- name: Static IP for the lidar / PLC network card
+  ansible.builtin.template:
+    src: 60-agf-lidar-netplan.yaml.j2
+    dest: /etc/netplan/60-agf-lidar.yaml
+    mode: "0600"
+  register: netplan_conf
+  when: lidar_nic | length > 0
+
+- name: Apply netplan
+  ansible.builtin.command: netplan apply
+  when: netplan_conf.changed | default(false)

@@ -1,0 +1,6 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<node pkg="auto_docking" name="auto_cart" type="auto_cart.$(arg subfix)" output="screen"
+		args="--config_path $(find amr_config)/cfg/auto_docking" />
+</launch>

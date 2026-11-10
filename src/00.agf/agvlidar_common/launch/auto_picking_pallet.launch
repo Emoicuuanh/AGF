@@ -1,0 +1,33 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<node pkg="picking_pallet" name="run_to_pallet" type="run_to_pallet.$(arg subfix)"
+		output="screen">
+		<rosparam command="load" file="$(find amr_config)/cfg/picking_pallet/control.yaml" />
+	</node>
+	<node pkg="picking_pallet" name="publish_tf" type="publish_tf.$(arg subfix)" output="screen">
+		<rosparam command="load" file="$(find amr_config)/cfg/picking_pallet/tf.yaml" />
+	</node>
+	<node pkg="picking_pallet" name="read_and_run_to_pallet" type="read_and_run_to_pallet"
+		output="screen">
+		<rosparam command="load" file="$(find amr_config)/cfg/picking_pallet/tf.yaml" />
+	</node>
+	<node pkg="picking_pallet" name="full_picking_pallet" type="full_picking_pallet" output="screen" />
+	<node pkg="picking_pallet" name="full_putting_pallet" type="full_putting_pallet" output="screen" />
+
+	<!-- Wrapper node -->
+	<include file="$(find agvlidar_common)/launch/picking_pallet_wrapper.launch">
+		<arg name="subfix" value="$(arg subfix)" />
+	</include>
+	<include file="$(find agvlidar_common)/launch/putting_pallet_wrapper.launch">
+		<arg name="subfix" value="$(arg subfix)" />
+	</include>
+	<node pkg="picking_pallet" name="run_to_pallet_wrapper"
+		type="run_to_pallet_wrapper.$(arg subfix)"
+		output="screen"></node>
+	<node pkg="picking_pallet" name="read_and_run_to_pallet_wrapper"
+		type="read_and_run_to_pallet_wrapper.$(arg subfix)"
+		output="screen"></node>
+
+	<!-- <include file="$(find amr_config)/launch/aruco_detect.launch" /> -->
+</launch>

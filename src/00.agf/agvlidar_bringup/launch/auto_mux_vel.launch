@@ -1,0 +1,12 @@
+<launch>
+	<!-- auto velocity multiplexer -->
+	<node pkg="nodelet" type="nodelet" name="auto_mux_nodelet" args="manager" />
+	<node pkg="nodelet" type="nodelet" name="auto_cmd_vel_mux"
+		args="load yocs_cmd_vel_mux/CmdVelMuxNodelet auto_mux_nodelet">
+		<param name="yaml_cfg_file" value="$(find agvlidar_bringup)/cfg/auto_cmd_vel_mux.yaml" />
+		<!-- move_base default -->
+		<remap from="/auto_cmd_vel_mux/input/navi" to="cmd_vel" />
+		<!-- move to point -->
+		<remap from="/auto_cmd_vel_mux/input/move_to_point" to="mtp_cmd_vel" />
+	</node>
+</launch>

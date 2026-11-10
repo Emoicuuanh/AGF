@@ -1,0 +1,7 @@
+lookahead_control_low_error: 0.105
+lookahead_control_high_error: 0.10
+set_vel: 0.07
+Kp1_small_error: 30.0
+Kp1_high_error: 28.0
+Kp2: 5.8
+calid_odom: 1.0

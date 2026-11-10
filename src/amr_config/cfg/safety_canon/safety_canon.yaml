@@ -1,0 +1,11 @@
+db_host: "10.0.108.16"
+db_name: "All-Table-Warehouse"
+db_user: "AGF_Safety"
+db_password: "123456a@A"
+db_port: 5432
+
+table_name: "data_safety"
+table_connect_name: "check_connect"
+
+zone_person_min: 1
+zone_person_max: 16

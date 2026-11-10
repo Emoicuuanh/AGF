@@ -1,0 +1,14 @@
+<launch>
+	<!-- Arguments -->
+	<arg name="simulation" default="false" />
+	<arg name="use_safety" default="true" />
+	<arg if="$(arg simulation)" name="simulation_str" default="-s" />
+	<arg unless="$(arg simulation)" name="simulation_str" default="" />
+	<arg name="subfix" default="py" />
+
+	<node name="moving_control" pkg="moving_control" type="moving_control_server.$(arg subfix)"
+		output="screen"
+		args="$(arg simulation_str) --planner_map $(find amr_config)/cfg/moving_control/planner_map.yaml
+									--planner_setting $(find amr_config)/cfg/moving_control/planner_setting.yaml
+									--default_params $(find amr_config)/cfg/moving_control/default_params.json" />
+</launch>

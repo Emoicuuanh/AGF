@@ -1,0 +1,106 @@
+<launch>
+  <!-- Gazebo bench for the Livox pallet detectors (detect_pallet_3d), Livox mount configurable.
+       roslaunch detect_pallet_3d_gazebo pallet_detection_sim.launch                       front face (center detector)
+       roslaunch detect_pallet_3d_gazebo pallet_detection_sim.launch scenario:=edge        pallet edge (edge detector)
+       roslaunch detect_pallet_3d_gazebo pallet_detection_sim.launch livox_pitch:=0.15     tilted Livox
+       rosrun detect_pallet_3d_gazebo run_tilt_matrix.sh front                             flat vs tilts, headless
+       Drive the rig: rostopic pub -r 10 /cmd_vel geometry_msgs/Twist '{linear: {x: -0.1}}'
+  -->
+  <arg name="gui"            default="true"/>
+  <arg name="rviz"           default="true"/>
+  <arg name="eval"           default="true"/>   <!-- enable the detector(s) and score them -->
+  <arg name="exit_when_done" default="false"/>  <!-- shut everything down after the evaluation (CI) -->
+  <arg name="result_file"    default=""/>       <!-- append the evaluation as one JSON line -->
+  <arg name="duration"       default="20.0"/>   <!-- s scored (sim time) -->
+  <arg name="scenario"       default="front"/>  <!-- front | edge -->
+  <arg name="eval_detectors" default="$(eval 'front' if arg('scenario') == 'front' else 'edge')"/>
+
+  <!-- Livox mount in base_link: real sensor pose (URDF TF + Gazebo sensor).
+       Defaults = amr_config/cfg/pick_and_place_pallet/pallet_tf_publisher.yaml -->
+  <arg name="livox_x"     default="-0.255"/>
+  <arg name="livox_y"     default="0.43"/>
+  <arg name="livox_z"     default="0.08"/>
+  <arg name="livox_roll"  default="0.0"/>
+  <arg name="livox_pitch" default="0.3491"/>  <!-- 20 deg down, as on the robot -->
+  <arg name="livox_yaw"   default="3.135"/>
+  <!-- What the detectors are told (livox_roll / livox_pitch in the detector yaml). Equal to the
+       real mount unless you want to see a misconfiguration (startup warning + tilted result). -->
+  <arg name="detector_roll"  default="$(arg livox_roll)"/>
+  <arg name="detector_pitch" default="$(arg livox_pitch)"/>
+  <arg name="h_samples"   default="720"/>
+  <arg name="v_samples"   default="60"/>
+  <arg name="range_noise" default="0.002"/>
+
+  <!-- Pallet: origin = front-face center on the floor, x out of the face, in world (= base_link
+       at spawn). Defaults put the face in the detector's crop for each scenario:
+         front: face center ~(1.2, 0.5) in livox_frame  (center detector, y crop 0.1 .. 0.9)
+         edge:  face center ~(0.6, 0.6), near corner ~(0.6, 0.1) in livox_frame (edge detector) -->
+  <arg name="pallet_model" default="pallet_loaded"/>  <!-- pallet_loaded | pallet_empty -->
+  <arg name="pallet_x"     default="$(eval -1.455 if arg('scenario') == 'front' else -0.855)"/>
+  <arg name="pallet_y"     default="$(eval -0.07 if arg('scenario') == 'front' else -0.17)"/>
+  <arg name="pallet_yaw"   default="0.07"/>
+  <arg name="use_y_filter" default="true"/>  <!-- EnableCenterDetector.use_y_filter -->
+
+  <arg name="center_config"    default="$(find amr_config)/cfg/detect_pallet_3d/livox_center_filter.yaml"/>
+  <arg name="edge_config"      default="$(find amr_config)/cfg/detect_pallet_3d/livox_edge_filter.yaml"/>
+  <arg name="edge_fixed_frame" default="livox_frame"/>  <!-- odom: test motion compensation while driving -->
+
+  <!-- ============================================================ gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find detect_pallet_3d_gazebo)/worlds/pallet_detection.world"/>
+    <arg name="gui"          value="$(arg gui)"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+  </include>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find detect_pallet_3d_gazebo)/urdf/livox_rig.urdf.xacro
+                  livox_x:=$(arg livox_x) livox_y:=$(arg livox_y) livox_z:=$(arg livox_z)
+                  livox_roll:=$(arg livox_roll) livox_pitch:=$(arg livox_pitch) livox_yaw:=$(arg livox_yaw)
+                  h_samples:=$(arg h_samples) v_samples:=$(arg v_samples) range_noise:=$(arg range_noise)"/>
+
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_rig" output="screen"
+        args="-urdf -param robot_description -model livox_rig -x 0 -y 0 -z 0"/>
+
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_pallet" output="screen"
+        args="-sdf -file $(find detect_pallet_3d_gazebo)/models/$(arg pallet_model).sdf -model pallet
+              -x $(arg pallet_x) -y $(arg pallet_y) -z 0 -Y $(arg pallet_yaw)"/>
+
+  <!-- base_link -> livox_frame (on the robot: pallet_tf_publisher) -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+
+  <node pkg="detect_pallet_3d_gazebo" type="block_laser_to_cloud2.py" name="block_laser_to_cloud2">
+    <remap from="points_in"  to="/livox/sim_points"/>
+    <remap from="points_out" to="/livox/lidar"/>
+  </node>
+
+  <!-- ============================================================ nodes under test -->
+  <node pkg="detect_pallet_3d" type="livox_center_detector_service.py" name="livox_center_detector" output="screen">
+    <rosparam file="$(arg center_config)" command="load"/>
+    <param name="livox_roll"  value="$(arg detector_roll)"/>
+    <param name="livox_pitch" value="$(arg detector_pitch)"/>
+  </node>
+
+  <node pkg="detect_pallet_3d" type="livox_edge_detector_service.py" name="livox_edge_detector" output="screen">
+    <rosparam file="$(arg edge_config)" command="load"/>
+    <param name="livox_roll"  value="$(arg detector_roll)"/>
+    <param name="livox_pitch" value="$(arg detector_pitch)"/>
+    <param name="fixed_frame" value="$(arg edge_fixed_frame)"/>
+  </node>
+
+  <!-- ============================================================ evaluation -->
+  <node if="$(arg eval)" pkg="detect_pallet_3d_gazebo" type="detection_eval.py" name="detection_eval"
+        output="screen" required="$(arg exit_when_done)">
+    <param name="detectors"      value="$(arg eval_detectors)"/>
+    <param name="duration"       value="$(arg duration)"/>
+    <param name="result_file"    value="$(arg result_file)"/>
+    <param name="use_y_filter"   value="$(arg use_y_filter)"/>
+    <param name="livox_roll"     value="$(arg livox_roll)"/>
+    <param name="livox_pitch"    value="$(arg livox_pitch)"/>
+    <param name="detector_roll"  value="$(arg detector_roll)"/>
+    <param name="detector_pitch" value="$(arg detector_pitch)"/>
+  </node>
+
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find detect_pallet_3d_gazebo)/rviz/pallet_detection_sim.rviz"/>
+</launch>

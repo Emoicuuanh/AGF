@@ -1,0 +1,8 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<!-- Wrapper node -->
+	<node pkg="picking_pallet" name="picking_pallet_wrapper"
+		type="picking_pallet_wrapper.$(arg subfix)"
+		output="screen" args="--config_file $(find amr_config)/cfg/picking_pallet/lift.yaml" />
+</launch>

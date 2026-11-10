@@ -1,0 +1,11 @@
+[*]
+indent_style = space
+
+[*.{js,ts,json,yaml}]
+indent_size = 2
+
+[*.py]
+indent_size = 4
+
+[*.launch]
+indent_style = tab

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>agvlidar_navigation</name>
+  <version>1.2.3</version>
+  <description>
+    The agvlidar_navigation provides roslaunch scripts for starting the navigation.
+  </description>
+  <license>Apache 2.0</license>
+  <author email="pyo@robotis.com">Pyo</author>
+  <author email="thlim@robotis.com">Darby Lim</author>
+  <author email="kkjong@robotis.com">Gilbert</author>
+  <author>Leon Jung</author>
+  <maintainer email="pyo@robotis.com">Pyo</maintainer>
+  <url type="website">http://wiki.ros.org/agvlidar_navigation</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>amcl</exec_depend>
+  <exec_depend>map_server</exec_depend>
+  <exec_depend>move_base</exec_depend>
+  <exec_depend>agvlidar_bringup</exec_depend>
+</package>

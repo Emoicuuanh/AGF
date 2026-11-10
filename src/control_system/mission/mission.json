@@ -1,0 +1,64 @@
+{
+  "result": {
+    "name": "1",
+    "desc": "2",
+    "map": "5",
+    "createdAt": "2022-03-09T11:16:16.332Z",
+    "updatedAt": "2022-03-22T06:13:49.330Z",
+    "agv_groups": ["Group 1"],
+    "group": "agv1_test",
+    "actions": [
+      {
+        "name": "Docking to marker position",
+        "params": {
+          "marker": {
+            "marker": [
+              {
+                "params": [
+                  {
+                    "name": "x_offset",
+                    "value": 0
+                  },
+                  {
+                    "name": "y_offset",
+                    "value": 0
+                  }
+                ],
+                "type": "vl_marker_for_mav_charger"
+              }
+            ],
+            "position": {
+              "display": {
+                "angle": 0.05689873301901745,
+                "x": -10.62377968019262,
+                "y": -10.6158962488531
+              },
+              "orientation": {
+                "w": 0.9995953451204906,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.028445491970559254
+              },
+              "position": {
+                "x": -0.5311889919249636,
+                "y": -0.530794820352114,
+                "z": 0.13531999999999997
+              }
+            }
+          }
+        },
+        "type": "docking"
+      },
+      {
+        "name": "Charging process",
+        "params": {
+          "charge_until_new_mission_in_queue": true,
+          "minimum_percentage": 80,
+          "minimum_time": 360
+        },
+        "type": "charging"
+      }
+    ],
+    "objectId": "ydyA7BKyP0"
+  }
+}

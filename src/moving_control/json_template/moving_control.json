@@ -1,0 +1,114 @@
+{
+  "name": "Path from A to B",
+  "params": {
+    "run_as_via_point": false,
+    "via_point_xy_tol": 0.5,
+    "via_point_yaw_tol": 0.5,
+    "frame_id": "map",
+    "retry_time": 1,
+    "timeout": 0.0,
+    "max_retry_time": 2,
+    "retry_distance": 0.3,
+    "local_planner": "teb_local_planner",
+    "reconfigure": {
+      "global_planner": "global_planner/GlobalPlanner",
+      "forward_vel": 0.5,
+      "backward_vel": 0.5,
+      "angular_vel": 0.5,
+      "linear_acc": 0.5,
+      "angular_acc": 0.5,
+      "xy_tolerance": 0.1,
+      "yaw_tolerance": 0.1
+    }
+  },
+  "waypoints": [
+    {
+      "name": "Pose_1",
+      "position": {
+        "position": {
+          "x": 0.1,
+          "y": 0.2,
+          "z": 0.3
+        },
+        "orientation": {
+          "x": 0.2,
+          "y": 0.2,
+          "z": 0.3,
+          "w": 1.0
+        }
+      },
+      "params": {
+        "retry_time": 1,
+        "local_planner": "teb_local_planner",
+        "reconfigure": {
+          "global_planner": "global_planner/GlobalPlanner",
+          "forward_vel": 0.4,
+          "backward_vel": 0.4,
+          "angular_vel": 0.4,
+          "linear_acc": 0.4,
+          "angular_acc": 0.4,
+          "xy_tolerance": 0.1,
+          "yaw_tolerance": 0.1
+        }
+      }
+    },
+    {
+      "name": "Pose_2",
+      "position": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        }
+      },
+      "params": {
+        "local_planner": "mpc_local_planner",
+        "reconfigure": {
+          "global_planner": "global_planner/GlobalPlanner",
+          "forward_vel": 0.0,
+          "backward_vel": 0.0,
+          "angular_vel": 0.0,
+          "linear_acc": 0.0,
+          "angular_acc": 0.0,
+          "xy_tolerance": 0.1,
+          "yaw_tolerance": 0.1
+        }
+      }
+    },
+    {
+      "name": "Pose_3",
+      "position": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        }
+      },
+      "params": {
+        "local_planner": "move_to_point",
+        "reconfigure": {
+          "forward_vel": 0.0,
+          "backward_vel": 0.0,
+          "rotate_vel": 0.5,
+          "angular_vel": 0.0,
+          "linear_acc": 0.0,
+          "angular_acc": 0.0,
+          "xy_tolerance": 0.1,
+          "yaw_tolerance": 0.1
+        }
+      }
+    }
+  ]
+}

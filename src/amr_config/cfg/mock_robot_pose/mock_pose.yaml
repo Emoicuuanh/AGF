@@ -1,0 +1,13 @@
+mode: "odom"               # static, moving, odom
+x: 0.0                     # Initial X position (meters)
+y: 0.0                     # Initial Y position (meters)
+yaw: 0.0                   # Initial yaw angle (radians)
+rate: 10.0                 # Publishing rate (Hz)
+global_frame_id: "map"
+base_frame_id: "base_footprint"
+
+# Moving mode parameters
+speed: 0.1                 # Linear speed (m/s) for moving mode
+angular_speed: 0.0         # Angular speed (rad/s) for moving mode
+circle_mode: false         # Move in circle
+circle_radius: 2.0         # Circle radius (meters)

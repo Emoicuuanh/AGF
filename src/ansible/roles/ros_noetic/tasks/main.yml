@@ -1,0 +1,56 @@
+---
+- name: Add ROS apt key
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
+    dest: /usr/share/keyrings/ros-archive-keyring.asc
+    mode: "0644"
+
+- name: Add ROS apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.asc] {{ ros_apt_url }} {{ ansible_distribution_release }} main"
+    filename: ros1-latest
+    state: present
+
+- name: Install ROS {{ ros_distro }} and build tools
+  ansible.builtin.apt:
+    name:
+      - "{{ ros_meta_package }}"
+      - python3-rosdep
+      - python3-rosinstall
+      - python3-rosinstall-generator
+      - python3-wstool
+      - python3-catkin-tools
+      - python3-osrf-pycommon
+    state: present
+    update_cache: true
+
+- name: Install ROS packages used by the workspace
+  ansible.builtin.apt:
+    name: "{{ ros_packages }}"
+    state: present
+
+- name: Install optional ROS packages (mapping / simulation)
+  ansible.builtin.apt:
+    name: "{{ ros_optional_packages }}"
+    state: present
+  when: install_optional_ros_packages | bool
+
+- name: Initialise rosdep
+  ansible.builtin.command: rosdep init
+  args:
+    creates: /etc/ros/rosdep/sources.list.d/20-default.list
+
+- name: Update rosdep (as robot user)
+  ansible.builtin.command: rosdep update --include-eol-distros
+  become: true
+  become_user: "{{ robot_user }}"
+  changed_when: false
+
+- name: Source ROS in .bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ robot_home }}/.bashrc"
+    line: "source /opt/ros/{{ ros_distro }}/setup.bash"
+    create: true
+    owner: "{{ robot_user }}"
+    group: "{{ robot_user }}"
+    mode: "0644"

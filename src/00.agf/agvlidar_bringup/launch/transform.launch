@@ -1,0 +1,21 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<node pkg="tf" type="static_transform_publisher" name="map_to_odom_tf" output="screen"
+		args="0 0 0 0 0 0 /map /odom 100" />
+
+	<node pkg="tf" type="static_transform_publisher" name="nav_base_tf" output="screen"
+		args="0 0 0 0 0 0 /lidar_nav350 /front_mount 100" />
+
+	<node name="transform_nav" pkg="agvlidar_bringup" type="transform_nav.$(arg subfix)"
+		output="screen">
+		<remap from="odom" to="odom_fr_nav" />
+	</node>
+
+	<include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
+		<arg name="time" value="1" />
+		<arg name="pkg" value="agvlidar_bringup" />
+		<arg name="file" value="robot_state_publisher.launch" />
+		<arg name="node_name" value="scan_combine_delay" />
+	</include>
+</launch>

@@ -1,0 +1,24 @@
+# Scenario cases for scenario.py. Heights in metres above the floor.
+#   fork      fork-top height (carried pallet underside = fork - 0.122)
+#   actual    real height of the lower stack (spawned in Gazebo)
+#   estimate  value sent on lower_stack_height (field top = estimate + tolerance 0.05)
+#   expect    what field_clear should report: clear | blocked
+stack_x: 3.0          # world x of the lower-stack front face (AGF starts with the LiDAR at x = 0)
+check_gap: 1.6        # LiDAR -> stack face at the check (must be > field x_max = 1.4)
+place_gap: 0.03       # carried pallet aligned over the stack
+speed: 0.3
+settle: 1.0
+drive_in: true
+
+cases:
+  # field top 1.194, required fork >= 1.316
+  - {name: nominal_clear,        fork: 1.40, actual: 1.144, estimate: 1.144, expect: clear}
+  - {name: fork_too_low,         fork: 1.25, actual: 1.144, estimate: 1.144, expect: blocked}
+  # bottom 1.178: physically above the stack, but inside the 50 mm tolerance -> conservative stop
+  - {name: within_tolerance,     fork: 1.30, actual: 1.144, estimate: 1.144, expect: blocked}
+  # documented limit: stack 116 mm taller than estimated -> field CLEAR, AGF hits the stack
+  - {name: stack_underestimated, fork: 1.35, actual: 1.260, estimate: 1.144, expect: clear}
+  - {name: stack_overestimated,  fork: 1.30, actual: 1.044, estimate: 1.144, expect: blocked}
+  # field top 1.45
+  - {name: tall_stack_clear,     fork: 1.60, actual: 1.400, estimate: 1.400, expect: clear}
+  - {name: tall_stack_too_low,   fork: 1.50, actual: 1.400, estimate: 1.400, expect: blocked}

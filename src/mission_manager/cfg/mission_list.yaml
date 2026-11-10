@@ -1,0 +1,42 @@
+# check_position_status:
+#   action_server: check_position_status
+move:
+  action_server: moving_control
+  need_undocking: true
+  module_name: moving_control
+docking:
+  action_server: auto_docking
+  need_undocking: true
+  module_name: auto_docking
+un_docking:
+  action_server: un_docking
+  need_undocking: true
+  module_name: auto_docking
+set_footprint:
+  action_server: set_footprint
+  need_undocking: false
+set_safety_job:
+  action_server: set_safety_job
+  need_undocking: false
+pick_up_shelf:
+  action_server: auto_cart
+  need_undocking: true
+  module_name: auto_cart
+place_shelf:
+  action_server: auto_cart
+  need_undocking: true
+  module_name: auto_cart
+charging:
+  action_server: charging_process
+  need_undocking: false
+  module_name: charging_process
+relative_move:
+  action_server: moving_control
+  need_undocking: true
+  module_name: moving_control
+planner_setting:
+  action_server: planner_setting
+  need_undocking: false
+sound:
+  action_server: sound_control
+  need_undocking: false

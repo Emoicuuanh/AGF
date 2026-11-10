@@ -1,0 +1,62 @@
+---
+- name: Create workspace folder
+  ansible.builtin.file:
+    path: "{{ ws_root }}/src"
+    state: directory
+    owner: "{{ robot_user }}"
+    group: "{{ robot_user }}"
+    mode: "0755"
+
+- name: Copy source to the robot
+  ansible.posix.synchronize:
+    src: "{{ ws_sync_src_from }}"
+    dest: "{{ ws_root }}/src/"
+    rsync_opts:
+      - "--exclude=build/"
+      - "--exclude=*.bag"
+      - "--exclude=*.zip"
+      - "--exclude=*.tar.gz"
+  become: false
+  when: ws_sync_src | bool and ws_sync_src_from | length > 0
+
+- name: Check workspace has packages
+  ansible.builtin.stat:
+    path: "{{ ws_root }}/src/agf_msgs/package.xml"
+  register: ws_has_src
+
+- name: Workspace source missing
+  ansible.builtin.debug:
+    msg: "No source in {{ ws_root }}/src - copy it there, then re-run with --tags workspace"
+  when: not ws_has_src.stat.exists
+
+- name: Install remaining dependencies with rosdep
+  ansible.builtin.shell: |
+    source /opt/ros/{{ ros_distro }}/setup.bash
+    rosdep update --include-eol-distros >/dev/null
+    rosdep install --from-paths src --ignore-src -r -y \
+      --rosdistro {{ ros_distro }} --skip-keys "{{ rosdep_skip_keys }}"
+  args:
+    chdir: "{{ ws_root }}"
+    executable: /bin/bash
+  register: rosdep_out
+  changed_when: "'Successfully installed' in rosdep_out.stdout"
+  when: ws_has_src.stat.exists
+
+- name: Build workspace with catkin_make
+  ansible.builtin.shell: |
+    set -e
+    source /opt/ros/{{ ros_distro }}/setup.bash
+    catkin_make -DCMAKE_BUILD_TYPE=Release -j{{ build_jobs }}
+  args:
+    chdir: "{{ ws_root }}"
+    executable: /bin/bash
+  become: true
+  become_user: "{{ robot_user }}"
+  when: ws_build | bool and ws_has_src.stat.exists
+
+- name: Source workspace in .bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ robot_home }}/.bashrc"
+    line: "source {{ ws_root }}/devel/setup.bash"
+    insertafter: "source /opt/ros/{{ ros_distro }}/setup.bash"
+  when: ws_has_src.stat.exists

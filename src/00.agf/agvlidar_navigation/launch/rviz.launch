@@ -1,0 +1,7 @@
+<launch>
+	<node pkg="rviz" type="rviz" name="rviz" required="true"
+		args="-d $(find amr_config)/cfg/rviz/rviz.rviz">
+		<remap from="rotate_diff_goal" to="move_to_point/rotate_goal" />
+		<remap from="move_to_point_simple/goal" to="move_to_point/normal_goal" />
+	</node>
+</launch>

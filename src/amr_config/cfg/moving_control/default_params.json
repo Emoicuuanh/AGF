@@ -1,0 +1,31 @@
+{
+  "params": {
+    "run_as_via_point": false,
+    "via_point_xy_tol": 0.5,
+    "via_point_yaw_tol": 0.5,
+    "frame_id": "map",
+    "retry_time": 1,
+    "timeout": 0.0,
+    "max_retry_time": 2,
+    "retry_distance": 0.3,
+    "avoid_obstacle": true,
+    "straight_and_rotate": false,
+    "local_planner": "agf_local_planner",
+    "overwrite_planner_setting": false,
+    "reconfigure": {
+      "global_planner": "global_planner/GlobalPlanner",
+      "forward_vel": 0.5,
+      "backward_vel": 0.1,
+      "rotate_vel": 0.4,
+      "angular_vel": 0.5,
+      "linear_acc": 0.5,
+      "angular_acc": 0.5,
+      "xy_tolerance": 0.1,
+      "yaw_tolerance": 0.1,
+      "x_only_tolerance": false,
+      "rotate_only": false,
+      "distance_ignore_angular": 0.0,
+      "income_yaw_tolerance": 0.1
+    }
+  }
+}

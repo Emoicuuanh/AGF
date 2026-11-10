@@ -1,0 +1,8 @@
+<launch>
+    <arg name="simulation" default="true"/>
+
+    <param if="$(arg simulation)" name="/use_sim_time" value="true"/>
+    <param unless="$(arg simulation)" name="/use_sim_time" value="false"/>
+
+    <param name="mongodb_address" value="mongodb://coffee:coffee@localhost:27017"/>
+</launch>

@@ -1,0 +1,6 @@
+<launch>
+	<!-- <include file="$(find map_zone)/launch/map_zone.launch"/> -->
+	<node pkg="agf_local_planner" type="set_safety_job.py" name="set_safety" output="screen">
+		<rosparam file="$(find amr_config)/cfg/agf_local_planner/set_safety_job.yaml" command="load"/>
+	</node>
+</launch>

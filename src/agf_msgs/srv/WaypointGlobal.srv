@@ -1,0 +1,3 @@
+bool request
+---
+agf_msgs/Waypoint_Array waypoints

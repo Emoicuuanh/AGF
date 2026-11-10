@@ -1,0 +1,33 @@
+# Clearance field: ground line -> estimated lower-stack line (+ tolerance)
+#
+# mode: manual  -> mounting described by lidar_height / angle_forward_deg / angle_direction
+# mode: tf      -> points transformed into reference_frame (x forward, z up, floor at floor_z)
+mode: manual
+
+# --- manual mounting model -------------------------------------------------
+lidar_height: 1.05          # scan centre above floor [m]
+angle_forward_deg: 0.0      # scan angle of the beam pointing horizontally at the load [deg]
+angle_direction: 1          # +1: increasing scan angle points UP, -1: points DOWN
+
+# --- tf mounting model -----------------------------------------------------
+reference_frame: base_footprint
+floor_z: 0.0
+tf_timeout: 0.05
+
+# --- field ------------------------------------------------------------------
+field:
+  x_min: 0.0                # start, in front of the LiDAR origin [m]
+  x_max: 1.4                # end [m] - check must be done while the lower stack is farther than this
+  floor_margin: 0.02        # returns at or below this height are floor [m]
+  tolerance: 0.05           # added to the estimated stack height [m]
+  min_points: 3             # returns inside the field needed to call it blocked
+
+# --- safety / timing ---------------------------------------------------------
+trigger_scans: 2            # consecutive blocked scans before reporting BLOCKED
+clear_scans: 3              # consecutive clear scans before reporting CLEAR
+scan_timeout: 0.3           # no scan for this long -> field_clear=false [s]
+height_timeout: 0.0         # estimate older than this -> invalid; 0 = never stale [s]
+default_stack_height: -1.0  # >0 to use without a lower_stack_height topic [m]
+require_enable: false       # true: only evaluate after enable=true
+deck_offset: 0.122          # fork top -> carried pallet underside [m] (for required_fork_height)
+publish_markers: true

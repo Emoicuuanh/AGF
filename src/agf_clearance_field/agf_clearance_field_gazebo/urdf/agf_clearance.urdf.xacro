@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!--
+  Simplified AGF for the clearance-field test bench.
+
+  Frames (x forward, z up):
+    world           rail_joint (prismatic, x) -> base_footprint; driven by /agf/drive_controller
+    base_footprint  floor level, x = 0 at the LiDAR origin (so "gap" = distance LiDAR -> stack face)
+    base_link       chassis + mast (everything behind x = -0.08)
+    fork_carriage   prismatic lift_joint; link frame sits at the FORK TOP height.
+                    lift_joint = 0 at lift_zero, so fork_height = lift_zero + q.
+                    Carries the forks, the carriage plates and the carried pallet + load.
+    lidar_vertical  2D LiDAR, rolled +90 deg -> scan plane is x-z, +angle points UP
+                    (= manual mode with angle_forward_deg 0, angle_direction +1)
+
+  Geometry matches fake_scan_pub.py: pallet 1.2 x 0.8 x 0.144, deck offset 0.122,
+  carried pallet x = 0.03 .. 1.23, forks 1.15 x 0.045 at y = +-0.3 (outside the scan plane).
+-->
+<robot name="agf_clearance" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="lidar_height" default="1.05"/>
+  <xacro:arg name="lidar_y"      default="0.0"/>
+  <xacro:arg name="carried_load" default="0.9"/>   <!-- load height on the carried pallet; 0 = empty pallet -->
+  <xacro:arg name="carry_pallet" default="true"/>
+  <xacro:arg name="lift_zero"    default="1.40"/>
+
+  <xacro:property name="lidar_height" value="$(arg lidar_height)"/>
+  <xacro:property name="lidar_y"      value="$(arg lidar_y)"/>
+  <xacro:property name="carried_load" value="$(arg carried_load)"/>
+  <xacro:property name="lift_zero"    value="$(arg lift_zero)"/>
+
+  <xacro:property name="PAL_L"  value="1.2"/>
+  <xacro:property name="PAL_W"  value="0.8"/>
+  <xacro:property name="PAL_H"  value="0.144"/>
+  <xacro:property name="DECK"   value="0.122"/>   <!-- fork top -> carried pallet underside -->
+  <xacro:property name="FORK_L" value="1.15"/>
+  <xacro:property name="FORK_T" value="0.045"/>
+  <xacro:property name="FORK_W" value="0.12"/>
+  <xacro:property name="FORK_Y" value="0.3"/>
+
+  <material name="agf_yellow"><color rgba="0.95 0.75 0.10 1"/></material>
+  <material name="steel"><color rgba="0.35 0.35 0.38 1"/></material>
+  <material name="dark"><color rgba="0.15 0.15 0.15 1"/></material>
+  <material name="wood"><color rgba="0.70 0.52 0.30 1"/></material>
+  <material name="load_blue"><color rgba="0.25 0.45 0.80 1"/></material>
+
+  <!-- Axis-aligned box from (x0,y0,z0) to (x1,y1,z1) in the link frame. -->
+  <xacro:macro name="abox" params="x0 x1 y0 y1 z0 z1 mat col:=true">
+    <visual>
+      <origin xyz="${(x0+x1)/2} ${(y0+y1)/2} ${(z0+z1)/2}"/>
+      <geometry><box size="${x1-x0} ${y1-y0} ${z1-z0}"/></geometry>
+      <material name="${mat}"/>
+    </visual>
+    <xacro:if value="${col}">
+      <collision>
+        <origin xyz="${(x0+x1)/2} ${(y0+y1)/2} ${(z0+z1)/2}"/>
+        <geometry><box size="${x1-x0} ${y1-y0} ${z1-z0}"/></geometry>
+      </collision>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="box_inertial" params="m x y z cx cy cz">
+    <inertial>
+      <origin xyz="${cx} ${cy} ${cz}"/>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/12}" ixy="0" ixz="0"
+               iyy="${m*(x*x+z*z)/12}" iyz="0" izz="${m*(x*x+y*y)/12}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ================================================================ drive rail -->
+  <!-- The AGF runs on a prismatic rail along world x (effort-limited velocity control):
+       it cannot climb over or tip on the stack, so a collision simply stalls it. -->
+  <link name="world"/>
+
+  <joint name="rail_joint" type="prismatic">
+    <parent link="world"/>
+    <child link="base_footprint"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-2.0" upper="6.0" effort="20000" velocity="1.0"/>
+  </joint>
+
+  <transmission name="rail_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rail_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="drive_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- ================================================================ chassis + mast -->
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+  </joint>
+
+  <link name="base_link">
+    <xacro:box_inertial m="3000" x="1.2" y="1.0" z="0.6" cx="-0.7" cy="0" cz="0.3"/>
+    <!-- chassis (5 mm above the floor: the rail carries it) -->
+    <xacro:abox x0="-1.30" x1="-0.13" y0="-0.50" y1="0.50" z0="0.005" z1="0.55" mat="agf_yellow"/>
+    <!-- mast uprights, outside the scan plane -->
+    <xacro:abox x0="-0.13" x1="-0.08" y0="0.40"  y1="0.50"  z0="0.55" z1="2.80" mat="steel"/>
+    <xacro:abox x0="-0.13" x1="-0.08" y0="-0.50" y1="-0.40" z0="0.55" z1="2.80" mat="steel"/>
+    <xacro:abox x0="-0.13" x1="-0.08" y0="-0.50" y1="0.50"  z0="2.75" z1="2.80" mat="steel" col="false"/>
+    <!-- LiDAR bracket (visual only) -->
+    <xacro:abox x0="-0.13" x1="-0.08" y0="-0.40" y1="0.40"
+                z0="${lidar_height-0.03}" z1="${lidar_height+0.03}" mat="dark" col="false"/>
+    <xacro:abox x0="-0.08" x1="-0.03" y0="${lidar_y-0.015}" y1="${lidar_y+0.015}"
+                z0="${lidar_height-0.015}" z1="${lidar_height+0.015}" mat="dark" col="false"/>
+  </link>
+
+  <!-- ================================================================ fork carriage -->
+  <joint name="lift_joint" type="prismatic">
+    <parent link="base_link"/>
+    <child link="fork_carriage"/>
+    <origin xyz="0 0 ${lift_zero}"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="${0.20 - lift_zero}" upper="${2.20 - lift_zero}" effort="100000" velocity="0.5"/>
+    <dynamics damping="100.0"/>
+  </joint>
+
+  <link name="fork_carriage">
+    <xacro:box_inertial m="50" x="1.2" y="1.0" z="1.0" cx="0.4" cy="0" cz="0.2"/>
+    <!-- carriage plates, gap at |y| < 0.08 for the LiDAR plane -->
+    <xacro:abox x0="-0.07" x1="-0.01" y0="0.08"  y1="0.50"  z0="-0.20" z1="0.90" mat="steel"/>
+    <xacro:abox x0="-0.07" x1="-0.01" y0="-0.50" y1="-0.08" z0="-0.20" z1="0.90" mat="steel"/>
+    <!-- forks: tine + shank -->
+    <xacro:abox x0="-0.01" x1="${FORK_L}" y0="${FORK_Y-FORK_W/2}"  y1="${FORK_Y+FORK_W/2}"
+                z0="${-FORK_T}" z1="0" mat="dark"/>
+    <xacro:abox x0="-0.01" x1="${FORK_L}" y0="${-FORK_Y-FORK_W/2}" y1="${-FORK_Y+FORK_W/2}"
+                z0="${-FORK_T}" z1="0" mat="dark"/>
+    <xacro:abox x0="-0.01" x1="0.035" y0="${FORK_Y-FORK_W/2}"  y1="${FORK_Y+FORK_W/2}"
+                z0="0" z1="0.45" mat="dark"/>
+    <xacro:abox x0="-0.01" x1="0.035" y0="${-FORK_Y-FORK_W/2}" y1="${-FORK_Y+FORK_W/2}"
+                z0="0" z1="0.45" mat="dark"/>
+    <!-- carried pallet + load (solid blocks, as in fake_scan_pub.py) -->
+    <xacro:if value="$(arg carry_pallet)">
+      <xacro:abox x0="0.03" x1="${0.03+PAL_L}" y0="${-PAL_W/2}" y1="${PAL_W/2}"
+                  z0="${-DECK}" z1="${PAL_H-DECK}" mat="wood"/>
+      <xacro:if value="${carried_load > 0}">
+        <xacro:abox x0="0.03" x1="${0.03+PAL_L}" y0="${-PAL_W/2+0.02}" y1="${PAL_W/2-0.02}"
+                    z0="${PAL_H-DECK}" z1="${PAL_H-DECK+carried_load}" mat="load_blue"/>
+      </xacro:if>
+    </xacro:if>
+  </link>
+
+  <transmission name="lift_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lift_joint">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="lift_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- ================================================================ vertical LiDAR -->
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_vertical"/>
+    <origin xyz="0 ${lidar_y} ${lidar_height}" rpy="${pi/2} 0 0"/>
+  </joint>
+
+  <link name="lidar_vertical">
+    <xacro:box_inertial m="0.3" x="0.06" y="0.06" z="0.06" cx="0" cy="0" cz="0"/>
+    <visual>
+      <geometry><cylinder radius="0.03" length="0.05"/></geometry>
+      <material name="dark"/>
+    </visual>
+    <!-- no collision: the sensor must not see itself -->
+  </link>
+
+  <!-- ================================================================ gazebo -->
+  <gazebo reference="fork_carriage">
+    <!-- the lift is position-controlled (teleported) every step -->
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+
+  <!-- The sensor lives on base_link with the lidar_joint pose; lidar_vertical is only a TF
+       frame (lumped). A light link on a preserved fixed joint is unstable next to the 3 t base,
+       and sdformat would rename frameName if the sensor sat on the lumped link itself. -->
+  <gazebo reference="base_link">
+    <sensor type="ray" name="lidar_vertical">
+      <pose>0 ${lidar_y} ${lidar_height} ${pi/2} 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>15</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>541</samples>
+            <resolution>1</resolution>
+            <min_angle>-2.35619</min_angle>
+            <max_angle>2.35619</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>10.0</max>
+          <resolution>0.001</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.005</stddev>
+        </noise>
+      </ray>
+      <plugin name="lidar_vertical_ros" filename="libgazebo_ros_laser.so">
+        <topicName>/lidar_vertical/scan</topicName>
+        <frameName>lidar_vertical</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/agf</robotNamespace>
+      <legacyModeNS>true</legacyModeNS>
+    </plugin>
+  </gazebo>
+</robot>

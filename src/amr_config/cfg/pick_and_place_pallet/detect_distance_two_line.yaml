@@ -1,0 +1,20 @@
+scan1_name: "/scan_1"
+scan1_frame: "laser_1"
+scan2_name: "/scan_2"
+scan2_frame: "laser_2"
+frame_robot: "laser_2"
+
+use_detect_two_line: true
+dis_filter_middle_point: 0.15
+max_distance_point_to_line: 0.03
+min_size_path: 20
+max_distance_scan: 4.0
+min_distance_scan: 0.07
+lenght_of_pallet: 1.07
+max_diff_lenght: 0.008
+max_diff_create_path: 0.05
+use_3d: true
+
+# 3D side of distance_two_pallet_3d = edge of the pallet carried on the forks -> still in
+# base_link, not in odom. Also gives the max_tf_age stale check (default 0.5 s).
+fixed_frame: "base_link"

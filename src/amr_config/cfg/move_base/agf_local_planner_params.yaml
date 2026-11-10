@@ -1,0 +1,51 @@
+AgfLocalPlannerROS:
+  odom_topic: odom
+  distance_to_control_point: 0.7
+  lookahead_dist: 0.3
+  look_forward_gain: 0.5
+  error_to_low_speed_points: 1.5
+  error_to_special_safety_points: 1.6
+  max_vel_x: 0.7
+  max_angular_z: 1.0
+  weight_acc: 0.7
+  error_to_start_stop: 1.5
+  # Motion profile to the goal: slow down at approach_decel to creep_vel, creep
+  # creep_distance, then send 0 at the brake point.
+  # approach_decel 0: proportional 0.25*d slowdown.
+  approach_decel: 0.5        # m/s^2, e.g. 0.2-0.3; also slows down early when error_to_start_stop is short
+  creep_vel: 0.1             # m/s, high enough that the robot does not stall
+  creep_distance: 0.5        # m, keep >= 3*drive_lag*creep_vel so the real speed settles at creep_vel
+  # Brake model, what the robot does after cmd_vel 0: decelerate at coast_decel
+  # for brake_delay, then at brake_decel to standstill. The planner sends 0 that
+  # rolling distance (from the measured speed) before the goal.
+  # brake_delay, coast_decel, brake_decel all 0: stop inside xy_goal_tolerance.
+  brake_delay: 0.2           # s, measure: time from cmd_vel 0 until the brake grips
+  coast_decel: 0.25          # m/s^2, measure: deceleration during brake_delay (0 = keeps speed)
+  brake_decel: 0.7           # m/s^2, measure: deceleration once the brake grips (0 = ignore)
+  # The three above are for forward driving (cmd x > 0). Reverse values, measured
+  # the same way driving backward; leave out to use the forward ones.
+  # Reverse stops shorter than forward; these are estimates until measured.
+  brake_delay_reverse: 0.2  # s
+  coast_decel_reverse: 0.25  # m/s^2
+  brake_decel_reverse: 0.5   # m/s^2
+  drive_lag: 0.2            # s, measure: time to 63% of a cmd_vel speed step (only checks creep_distance)
+  stop_offset: 0.0           # m, calibration: mean final error past the goal (+ = send 0 earlier)
+  odom_timeout: 0.5          # s, older odometry is not used for the speed (falls back to /cmd_vel_feedback)
+  weight_theta_e: 0.9
+  weight_theta_d: 2.0
+  k_p: 1.0
+  # Slew limits against localization jumps (rad/s, 0 = off)
+  max_theta_d_rate: 0.3    # cross-track term; normal tracking changes < ~0.15 rad/s
+  max_steering_rate: 0.8   # steering command; keep at/below the steering actuator speed
+  steering_lag_slowdown: 0.05  # rad; if steering lags the request by more, use vel_x_when_more_angle (0 = off)
+  vel_x_when_more_angle: 0.35
+  # Car like
+  is_carlike: true # Not yet use
+  car_like:
+    steering_angle_for_rotate_min: -0.90  # Right turn (negative)
+    steering_angle_for_rotate_max: 0.70    # Left turn (positive)
+    max_trans_vel_for_rotate: 0.3 # Can be negative
+    steering_angle_tolerance: 0.05
+  xy_goal_tolerance: 0.15
+  yaw_goal_tolerance: 0.1
+  ignore_last_rotate: true

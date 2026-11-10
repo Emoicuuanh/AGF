@@ -1,0 +1,128 @@
+---
+# ---------------------------------------------------------------------------
+# Robot user and workspace
+# ---------------------------------------------------------------------------
+robot_user: mkac
+robot_home: "/home/{{ robot_user }}"
+ws_root: "{{ robot_home }}/agf_app_ws"          # catkin workspace; source lives in {{ ws_root }}/src
+
+# Copy the src folder from the machine running Ansible to the robot (needs rsync).
+# Leave false if the source is already on the robot (git clone / USB copy).
+ws_sync_src: false
+ws_sync_src_from: ""                             # e.g. /mnt/e/backup-agf-02/src/
+
+# Build the workspace with catkin_make at the end
+ws_build: true
+build_jobs: "{{ [ (ansible_processor_vcpus | default(2) | int), 1 ] | max }}"
+# Big C++ source builds (MRPT) use less to avoid running out of RAM
+heavy_build_jobs: "{{ [ ((ansible_processor_vcpus | default(2) | int) // 2), 1 ] | max }}"
+
+# ---------------------------------------------------------------------------
+# ROS
+# ---------------------------------------------------------------------------
+ros_distro: noetic
+# If packages.ros.org no longer serves Noetic, use the frozen snapshot:
+#   http://snapshots.ros.org/noetic/final/ubuntu
+ros_apt_url: "http://packages.ros.org/ros/ubuntu"
+ros_meta_package: "ros-noetic-desktop"           # includes rviz, rqt
+
+# ROS packages used by the workspace (package.xml / launch files) that are not in src
+ros_packages:
+  - ros-noetic-pcl-ros
+  - ros-noetic-pcl-conversions
+  - ros-noetic-cv-bridge
+  - ros-noetic-image-transport
+  - ros-noetic-laser-geometry
+  - ros-noetic-diagnostic-updater
+  - ros-noetic-ecl-threads
+  - ros-noetic-mbf-msgs
+  - ros-noetic-mbf-costmap-core
+  - ros-noetic-map-msgs
+  - ros-noetic-move-base-msgs
+  - ros-noetic-angles
+  - ros-noetic-robot-state-publisher
+  - ros-noetic-usb-cam
+  - ros-noetic-rosbridge-server
+  - ros-noetic-joy
+  - ros-noetic-teleop-twist-joy
+  - ros-noetic-rqt-reconfigure
+  - ros-noetic-aruco-detect
+  - python3-pykdl
+
+# Referenced only by mapping / simulation launch files
+install_optional_ros_packages: true
+ros_optional_packages:
+  - ros-noetic-gmapping
+  - ros-noetic-hector-mapping
+  - ros-noetic-cartographer-ros
+  - ros-noetic-stage-ros
+  - ros-noetic-mvsim
+
+# rosdep keys that this playbook builds from source instead
+rosdep_skip_keys: "mrpt2 libmongocxx libbsoncxx"
+
+# ---------------------------------------------------------------------------
+# Python (pip). Pin to the versions on a working robot: pip3 freeze | grep -i <name>
+# ---------------------------------------------------------------------------
+# Code uses pymodbus.client.ModbusTcpClient + pymodbus.payload (3.x, before 3.7)
+pymodbus_version: "3.6.9"
+pip_packages:
+  - "pymodbus=={{ pymodbus_version }}"
+  - "pymongo>=4.0,<5"          # includes bson and gridfs; do NOT pip install 'bson'
+  - "peewee"
+  - "websockets"
+  - "python-vlc"
+  - "Cython"
+
+# detect_pallet_3d (open3d + scikit-learn). Big download; open3d has no wheel for 32-bit ARM.
+install_perception_python: true
+pip_perception_packages:
+  - "open3d"
+  - "scikit-learn"
+
+# ---------------------------------------------------------------------------
+# MongoDB server
+# ---------------------------------------------------------------------------
+install_mongodb: true
+# "auto": 7.0 if the CPU supports it (x86 AVX / ARMv8.2), otherwise 4.4
+mongodb_version: "auto"
+mongodb_bind_ip: "127.0.0.1"
+# User used by agv_mongodb / control_system scripts (mongodb://coffee:coffee@localhost:27017)
+mongodb_app_user: coffee
+mongodb_app_password: coffee
+
+# ---------------------------------------------------------------------------
+# Source-built C++ libraries
+# ---------------------------------------------------------------------------
+src_build_dir: /opt/agf_build_src
+
+# agf_system expects /usr/local/include/{bsoncxx,mongocxx}/v_noabi + mnmlstc polyfill
+mongo_c_driver_version: "1.23.5"
+mongo_cxx_driver_version: "r3.7.2"
+
+# mrpt_icp_slam_2d expects MRPT in /opt/mrpt with the ros1bridge module.
+# ros1bridge was moved out of MRPT in 2.11, so stay on 2.10.x or older.
+# Check on a working robot: grep MRPT_VERSION /opt/mrpt/include/mrpt/version.h
+mrpt_version: "2.10.0"
+mrpt_prefix: /opt/mrpt
+
+# livox_ros_driver2 links /usr/local/lib/liblivox_lidar_sdk_*.
+livox_sdk2_version: "master"     # pin to a tag/commit once a known-good one is chosen
+
+# ---------------------------------------------------------------------------
+# Hardware access
+# ---------------------------------------------------------------------------
+robot_groups: [dialout, video, audio, plugdev, tty]
+
+# Stable names for USB devices. Find values with:
+#   udevadm info -a -n /dev/ttyUSB0 | grep -E 'idVendor|idProduct|serial' | head
+udev_serial_rules: []
+#  - { name: safety_rs232, vendor: "0403", product: "6001", serial: "A10K1234" }
+#  - { name: imu,          vendor: "2341", product: "0043" }
+
+# Static IP on the NIC that faces the lidars / PLC. Leave lidar_nic empty to skip.
+# Livox default host IP is 192.168.1.50; SICK/NAV350/Olei/PLC must be in the same subnet.
+lidar_nic: ""                    # e.g. enp3s0
+lidar_nic_address: "192.168.1.50/24"
+# Large UDP buffers for point-cloud lidars
+sysctl_net_buffers: true

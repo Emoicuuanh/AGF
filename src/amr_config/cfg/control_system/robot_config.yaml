@@ -1,0 +1,306 @@
+battery:
+  low_threshold: 15
+  empty_threshold: 5
+
+option:
+  use_safety: true
+  use_motor_release: false
+  use_bumper: false
+  use_followline: false
+  use_trafic_control: false
+  check_init_pose: false
+  use_slam: false
+
+# TODO: Config standard button in /standart_io topic
+button:
+  - front_start_button:
+      field_name: start_1_button
+      action:
+        WAITING:
+        press: FRONT_START_BUTTON
+        RUNNING: NOTHING
+  - front_pause_button:
+      field_name: stop_1_button
+      action:
+        RUNNING:
+        press: PAUSE
+        hold: STOP
+  - rear_start_button:
+      field_name: start_2_button
+      action:
+        WAITING:
+        press: REAR_START_BUTTON
+        RUNNING: NOTHING
+  - rear_pause_button:
+      field_name: stop_2_button
+      action:
+        RUNNING:
+        press: PAUSE
+        hold: STOP
+
+# TODO: Config trigger here
+trigger:
+  - FRONT_START_BUTTON
+  - REAR_START_BUTTON
+
+# Thứ tự ưu tiên của error_list phụ thuộc vào thứ tự của module
+module_list:
+  # Modules which all type of robot need
+  # - template_module:
+  #     display_name: Template module
+  #     error_list:           # Define special ERROR for special LED EFFECT. ERROR only belong to this module (not belong to sub module)
+  #     - ERROR_1:
+  #         detail_status: ERROR_A    # Display in app
+  #         led_status: LED_A         # Display in led
+  #     - ERROR_2:
+  #         detail_status: ERROR_B
+  #     state_list:
+  #     - STATE_1:
+  #         detail_status: STATE_A
+  #         led_status: LED_B
+  #     - STATE_2:
+  #         detail_status: STATE_B
+
+  - mission_manager:
+      display_name: Mission
+      error_list:
+        - ERROR:
+            detail_status: MISSION_ERROR
+            led_status: MISSION_ERROR
+        - DUPLICATE_MARKER:
+            detail_status: DUPLICATE_MARKER
+        - MARKER_DIR_WRONG:
+            detail_status: MARKER_DIR_WRONG
+        - MISSION_EMPTY:
+            detail_status: MISSION_EMPTY
+        - MISSING_ACTION_DATA:
+            detail_status: MISSING_ACTION_DATA
+  - slam_manager:
+      display_name: Slam
+      timeout: 5.0
+  - moving_control:
+      display_name: Moving
+      pause_if_error: false
+      # error_list:
+      # - ERROR:
+      #     detail_status: MOVING_ERROR
+      #     led_status: MOVING_ERROR
+      state_list:
+        - MOVING:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - STOP_BY_SAFETY:
+            detail_status: SAFETY_STOP
+            led_status: SAFETY_STOP
+            sound_status: SAFETY_STOP
+      # - WAIT_CLEAR_SAFETY:
+      #     detail_status: SAFETY_STOP
+      #     led_status: SAFETY_STOP
+  - nav350:
+      display_name: NAV350
+      status_topic: /scan_nav350
+      status_msg: sensor_msgs/LaserScan
+      parse_json: false
+
+#   - oleilidar_1:
+#       display_name: Lidar_olei_1
+#       status_topic: /scan_1
+#       status_msg: sensor_msgs/LaserScan
+#       parse_json: false
+
+  - oleilidar_2:
+      display_name: Lidar_olei_2
+      status_topic: /scan_2
+      status_msg: sensor_msgs/LaserScan
+      parse_json: false
+        # timeout: 2
+        # handle_when_sim: false
+        # pause_if_error: true
+        # error_list:
+        #     - ERROR:
+        #         detail_status: LOCALIZATION_ERROR
+  # - transform_nav: # Config error_list
+  #     display_name: NAV350 TF
+  #     status_topic: /odom_fr_nav
+  #     status_msg: nav_msgs.msg/Odometry
+  #     parse_json: false
+  #     timeout: 0.5
+  #     handle_when_sim: false
+  - picking_pallet_server:
+      display_name: picking_pallet_server
+      pause_if_error: false
+      state_list:
+        - SET_SAFETY:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - PERPENDICULAR_FORK:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - TILTED_FORK:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - START_DETECT_PALLET:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - GET_WAITTING_POSE:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - SEND_CORRECT_POSITION:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - CORRECT_POSITION:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - DETECT_CONTROL_FORK:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - LIFTING:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - GO_BACKWARD_UNTIL_REACH:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - LIFT_HARD:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - GO_FORWARD:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - CONTROL_FORK:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - HOME_FORK:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - GET_PALLET_POSE:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - SEND_GO_BACKWARD_UNTIL_REACH:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - SEND_GO_FORWARD_UNTIL_REACH:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - GO_FORWARD_UNTIL_REACH:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - LIFT_HOME:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - CORRECT_ANGLE:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - SEND_CORRECT_ANGLE:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - HARD_FORK_DISTANCE_CONVEYOR_CONTROL:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+        - HARD_PLACE_PALLET_CONVEYOR_CONTROL:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+            sound_status: Moving
+
+  - placing_pallet_server:
+     display_name: placing_pallet_server
+     pause_if_error: false
+     state_list:
+       - SET_SAFETY:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - PERPENDICULAR_FORK:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - TILTED_FORK:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - START_DETECT_PALLET:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - GET_WAITTING_POSE:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - SEND_CORRECT_ANGLE:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - CORRECT_ANGLE:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - DETECT_CONTROL_FORK:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - LIFTING:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - GO_BACKWARD_UNTIL_REACH:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - LIFT_TO_PUSH:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - GO_FORWARD:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - CONTROL_FORK:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - HOME_FORK:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - GET_PALLET_POSE:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - SEND_GO_BACKWARD_UNTIL_REACH:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - SEND_GO_FORWARD_UNTIL_REACH:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - GO_FORWARD_UNTIL_REACH:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving
+       - LIFT_HOME:
+           detail_status: GOING_TO_POS
+           led_status: GOING_TO_POS
+           sound_status: Moving

@@ -1,0 +1,2 @@
+# Livox detector configs are read on Linux
+*.yaml text eol=lf

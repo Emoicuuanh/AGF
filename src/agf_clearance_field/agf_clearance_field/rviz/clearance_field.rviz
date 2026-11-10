@@ -1,0 +1,37 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.5
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+    - Class: rviz/LaserScan
+      Name: VerticalScan
+      Enabled: true
+      Topic: /lidar_vertical/scan
+      Size (m): 0.02
+      Style: Flat Squares
+      Color Transformer: FlatColor
+      Color: 200; 60; 80
+    - Class: rviz/MarkerArray
+      Name: ClearanceField
+      Enabled: true
+      Marker Topic: /clearance_field/markers
+  Global Options:
+    Fixed Frame: lidar_vertical
+    Frame Rate: 30
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 4
+      Focal Point:
+        X: 1
+        Y: 0
+        Z: 0
+      Pitch: 1.5697963
+      Yaw: 3.1415927

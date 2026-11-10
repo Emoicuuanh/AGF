@@ -1,0 +1,34 @@
+---
+# C/C++ libraries from the workspace package.xml / CMakeLists.txt files
+- name: Install system libraries for the workspace
+  ansible.builtin.apt:
+    name:
+      - libboost-all-dev
+      - libeigen3-dev
+      - libyaml-cpp-dev
+      - libjsoncpp-dev
+      - nlohmann-json3-dev          # agf_system
+      - libcurl4-openssl-dev        # agf_system (canon_server HTTP)
+      - libapr1-dev                 # pkg_check_modules(apr-1)
+      - libaprutil1-dev
+      - libbullet-dev               # tf2_bullet
+      - libsdl1.2-dev               # map_server
+      - libsdl-image1.2-dev
+      - netpbm
+      - libpcl-dev
+      - libopencv-dev
+      - libfltk1.3-dev
+      - liborocos-kdl-dev
+      - libconsole-bridge-dev
+      - qtbase5-dev                 # rviz_navigation_plugin
+      - libqt5opengl5-dev
+      - libpcap-dev                 # sick_scan
+      - libssl-dev
+      - libsasl2-dev                # mongo-c-driver
+      - zlib1g-dev
+      - v4l-utils                   # usb_cam debugging
+      - vlc                         # sound_control (python-vlc needs libvlc)
+      - libvlc-dev
+      - alsa-utils
+      - pulseaudio-utils
+    state: present

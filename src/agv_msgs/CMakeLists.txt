@@ -1,0 +1,54 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(agv_msgs)
+
+find_package(catkin REQUIRED COMPONENTS
+    roscpp
+    rospy
+    std_msgs
+    geometry_msgs
+    message_generation
+)
+add_service_files(
+    FILES
+    DataCheck.srv
+    SetDigitalOutput.srv
+    WaypointsPath.srv
+    ArrayWaypoints.srv
+    DirectionMove.srv
+    ArraySafetyWaypoints.srv
+)
+add_message_files(
+    FILES
+    DigitalSensor.msg
+    FollowLineSensor.msg
+    FollowLineControl.msg
+    DiffDriverMotorSpeed.msg
+    ArduinoIO.msg
+    HmiControl.msg
+    BasicFunction.msg
+    CardWithFunction.msg
+    DataChanged.msg
+    CardID.msg
+    SafetyStt.msg
+    SafetyControl.msg
+    EncoderDifferential.msg
+    LedControl.msg
+    Pid.msg
+    WaypointGlobal.msg
+    CartesianCoordinate.msg
+    CartesianPosition.msg
+    DataMatrixStamped.msg
+    ErrorRobotToPath.msg
+    WaypointSafety.msg
+)
+generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+)
+catkin_package(
+    CATKIN_DEPENDS
+    std_msgs
+    message_runtime
+    geometry_msgs
+)

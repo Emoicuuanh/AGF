@@ -1,0 +1,867 @@
+<title>MPC Forklift Tuner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: workshop instrument. Header strip with run controls, plan view + four
+   traces on the left, a tall parameter rack on the right that stacks on phones. */
+:root {
+  --bg: #e9ecea;
+  --panel: #ffffff;
+  --sunk: #f3f5f4;
+  --ink: #1c2321;
+  --muted: #5b6662;
+  --line: #d2d8d5;
+  --accent: #d89c00;      /* safety amber: commands, prediction */
+  --accent-ink: #1c2321;
+  --path: #2c6aa8;        /* reference path */
+  --trail: #1c2321;       /* actual robot trace */
+  --ghost: #9aa6a1;       /* previous run */
+  --good: #23804f;
+  --bad: #b8382c;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111615; --panel: #1a201f; --sunk: #151b1a; --ink: #e4eae7; --muted: #93a09b;
+    --line: #2b3432; --accent: #f2b705; --accent-ink: #111615; --path: #6ba6e2;
+    --trail: #e4eae7; --ghost: #56625e; --good: #4cc38a; --bad: #ff6f61; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111615; --panel: #1a201f; --sunk: #151b1a; --ink: #e4eae7; --muted: #93a09b;
+  --line: #2b3432; --accent: #f2b705; --accent-ink: #111615; --path: #6ba6e2;
+  --trail: #e4eae7; --ghost: #56625e; --good: #4cc38a; --bad: #ff6f61; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px 40px;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h1 { font-size: 30px; font-weight: 700; }
+h2 { font-size: 19px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1440px; margin: 0 auto; display: grid; gap: 16px; }
+
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+header.top p { margin: 4px 0 0; color: var(--muted); max-width: 70ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, select, input[type="number"] {
+  font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 7px 12px; min-height: 36px;
+}
+button { cursor: pointer; font-weight: 600; }
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--path); outline-offset: 2px; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+@media (max-width: 980px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.stage { display: grid; gap: 12px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+
+.view { position: relative; aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; }
+.view canvas { width: 100%; height: 100%; display: block; }
+.legend { position: absolute; left: 10px; top: 8px; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); pointer-events: none; }
+.legend i { display: inline-block; width: 16px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.hud { position: absolute; right: 10px; top: 8px; text-align: right; font-size: 12.5px; color: var(--muted); }
+.hud b { color: var(--ink); font-weight: 500; }
+
+.timeline { display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
+.timeline input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); }
+.timeline .mono { font-size: 13px; color: var(--muted); min-width: 7ch; text-align: right; }
+
+.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--panel); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.stat .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.stat .v { font-family: var(--font-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.stat .d { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+.pill { display: inline-block; font-family: var(--font-body); font-weight: 600; font-size: 13px; padding: 2px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.good { color: var(--good); } .pill.bad { color: var(--bad); }
+.better { color: var(--good); } .worse { color: var(--bad); }
+
+.charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .charts { grid-template-columns: minmax(0, 1fr); } }
+.chart { padding: 10px 12px 6px; min-width: 0; }
+.chart header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.chart h3 { font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.chart .keys { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+.chart .keys i { display: inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: 4px; }
+.chart canvas { width: 100%; height: 150px; display: block; }
+
+.rack { display: grid; gap: 12px; min-width: 0; }
+.group { padding: 12px 14px; display: grid; gap: 10px; }
+.group > header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.group > header span { font-size: 12px; color: var(--muted); }
+.field { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 2px 10px; align-items: center; }
+.field label { font-weight: 500; font-size: 14px; min-width: 0; }
+.field label small { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--muted); font-weight: 400; overflow-wrap: anywhere; }
+.field input[type="number"] { width: 84px; padding: 4px 6px; min-height: 30px; font-family: var(--font-mono); font-size: 13px; text-align: right; }
+.field input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 0; }
+.field select { grid-column: 2; width: 100%; padding: 4px 6px; min-height: 30px; font-size: 13px; }
+.field .help { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.field.wide select { grid-column: 1 / -1; }
+
+.yaml { padding: 12px 14px; display: grid; gap: 10px; }
+.yaml pre { margin: 0; background: var(--sunk); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5; max-height: 360px; overflow: auto; }
+.yaml .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.yaml .note { font-size: 12.5px; color: var(--muted); }
+.notes { padding: 12px 14px; font-size: 13.5px; color: var(--muted); display: grid; gap: 6px; }
+.notes p { margin: 0; max-width: 75ch; }
+.notes code { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>MPC Forklift Tuner</h1>
+      <p>Rear-steer Ackermann forklift running the <span class="mono">mpc_agf_planner</span> controller: same model, QP solver and speed logic as <span class="mono">control()</span>. Change a parameter and the run recomputes. The YAML at the bottom of the panel is ready to paste.</p>
+    </div>
+    <div class="controls">
+      <button id="btnPlay" class="primary" type="button">Play</button>
+      <button id="btnRestart" type="button">Restart</button>
+      <select id="selSpeed" aria-label="Playback speed">
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="5">5×</option>
+        <option value="10">10×</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="main">
+    <section class="stage" aria-label="Simulation">
+      <div class="panel view">
+        <canvas id="world" aria-label="Plan view of path and robot"></canvas>
+        <div class="legend">
+          <span><i style="background:var(--path)"></i>Path</span>
+          <span><i style="background:var(--trail)"></i>Robot base_link</span>
+          <span><i style="background:var(--accent)"></i>MPC prediction</span>
+          <span><i style="background:var(--ghost)"></i>Previous run</span>
+        </div>
+        <div class="hud mono" id="hud"></div>
+      </div>
+      <div class="panel timeline">
+        <input id="scrub" type="range" min="0" max="0" value="0" step="1" aria-label="Timeline">
+        <span class="mono" id="tLabel">0.0 s</span>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="charts">
+        <div class="panel chart">
+          <header><h3>Cross-track error</h3><div class="keys"><span><i style="background:var(--accent)"></i>this run, m</span><span><i style="background:var(--ghost)"></i>previous</span></div></header>
+          <canvas id="cErr"></canvas>
+        </div>
+        <div class="panel chart">
+          <header><h3>Heading error</h3><div class="keys"><span><i style="background:var(--accent)"></i>this run, deg</span><span><i style="background:var(--ghost)"></i>previous</span></div></header>
+          <canvas id="cHead"></canvas>
+        </div>
+        <div class="panel chart">
+          <header><h3>Left wheel angle</h3><div class="keys"><span><i style="background:var(--accent)"></i>command, deg</span><span><i style="background:var(--trail)"></i>measured</span></div></header>
+          <canvas id="cSteer"></canvas>
+        </div>
+        <div class="panel chart">
+          <header><h3>Speed</h3><div class="keys"><span><i style="background:var(--accent)"></i>command, m/s</span><span><i style="background:var(--trail)"></i>actual</span></div></header>
+          <canvas id="cSpeed"></canvas>
+        </div>
+      </div>
+
+      <div class="panel notes">
+        <h2>How the simulation maps to the robot</h2>
+        <p>Plant: bicycle model at base_link (centre of the fixed axle), <code>θ' = v·tan(δc)/a</code> with <code>a = steer_axle_x</code>. The left wheel angle is converted to the centre angle with <code>1/tan(δc) = 1/tan(δL) + W/(2a)</code>. The steering actuator follows the command with a first-order lag and its own rate limit, plus an optional calibration offset.</p>
+        <p>Controller: runs at the controller rate, prunes the path, resamples it, computes curvature, picks the speed with the same three cases and near-goal slowdown as <code>control()</code>, then solves the MPC with the ADMM solver and sends the left wheel angle. The final in-place rotation (<code>rotateCarLike</code>) is not simulated, as with <code>ignore_last_rotate: true</code>.</p>
+        <p>Localization noise and the pose jump only affect the pose the controller sees. Error charts use the true pose.</p>
+      </div>
+    </section>
+
+    <aside class="rack" id="rack" aria-label="Parameters"></aside>
+  </div>
+</div>
+
+<script id="core">
+// ============================================================================
+// SIMULATION CORE (no DOM) — mirrors mpc_tracker.cpp and control()
+// ============================================================================
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const normAng = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; };
+
+function wheelToCenter(w, p) {
+  if (p.track_width <= 0) return w;
+  const den = 1 + p.track_width * Math.tan(w) / (2 * p.steer_axle_x);
+  return den < 1e-3 ? w : Math.atan(Math.tan(w) / den);
+}
+function centerToWheel(c, p) {
+  if (p.track_width <= 0) return c;
+  const den = 1 - p.track_width * Math.tan(c) / (2 * p.steer_axle_x);
+  return den < 1e-3 ? c : Math.atan(Math.tan(c) / den);
+}
+function centerToRight(c, p) {
+  if (p.track_width <= 0) return c;
+  const den = 1 + p.track_width * Math.tan(c) / (2 * p.steer_axle_x);
+  return den < 1e-3 ? c : Math.atan(Math.tan(c) / den);
+}
+
+function buildPath(type, R) {
+  const ds = 0.05, pts = [[0, 0]];
+  let x = 0, y = 0, h = 0;
+  const line = L => { const n = Math.round(L / ds); for (let i = 0; i < n; i++) { x += ds * Math.cos(h); y += ds * Math.sin(h); pts.push([x, y]); } };
+  const arc = deg => {
+    const ang = deg * Math.PI / 180, len = Math.abs(ang) * R, n = Math.max(1, Math.round(len / ds));
+    const dh = ang / n, step = len / n;
+    for (let i = 0; i < n; i++) { h += dh / 2; x += step * Math.cos(h); y += step * Math.sin(h); h += dh / 2; pts.push([x, y]); }
+  };
+  switch (type) {
+    case 'straight': line(10); break;
+    case 'turn_left': line(3); arc(90); line(3); break;
+    case 'turn_right': line(3); arc(-90); line(3); break;
+    case 's_curve': line(2); arc(60); arc(-60); line(2); break;
+    case 'lane_change': line(2); arc(25); arc(-25); line(3); break;
+    case 'u_turn': line(2); arc(180); line(2); break;
+    case 'slalom': line(1); arc(45); arc(-90); arc(90); arc(-45); line(1); break;
+    default: line(10);
+  }
+  return pts;
+}
+
+// Dense Cholesky for the ADMM linear system
+function chol(K, N) {
+  const L = new Float64Array(N * N);
+  for (let i = 0; i < N; i++) for (let j = 0; j <= i; j++) {
+    let s = K[i * N + j];
+    for (let k = 0; k < j; k++) s -= L[i * N + k] * L[j * N + k];
+    if (i === j) L[i * N + i] = Math.sqrt(Math.max(s, 1e-12)); else L[i * N + j] = s / L[j * N + j];
+  }
+  return L;
+}
+function cholSolve(L, b, N, out, tmp) {
+  for (let i = 0; i < N; i++) { let s = b[i]; for (let k = 0; k < i; k++) s -= L[i * N + k] * tmp[k]; tmp[i] = s / L[i * N + i]; }
+  for (let i = N - 1; i >= 0; i--) { let s = tmp[i]; for (let k = i + 1; k < N; k++) s -= L[k * N + i] * out[k]; out[i] = s / L[i * N + i]; }
+}
+
+function feedforward(kappa, v, p, minS, maxS) {
+  return clamp(Math.atan((v >= 0 ? 1 : -1) * kappa * p.steer_axle_x), minS, maxS);
+}
+
+// Port of MpcTracker::solve. Works on centre steering angles.
+function mpcSolve(state, p, ey, eth, v, kap, prev, headingScale) {
+  const N = Math.max(1, Math.round(p.mpc_horizon)), dt = p.mpc_dt, a = p.steer_axle_x;
+  const minS = wheelToCenter(p.min_steering_angle, p), maxS = wheelToCenter(p.max_steering_angle, p);
+  const step = p.max_steering_rate > 0 ? p.max_steering_rate * dt : maxS - minS;
+  const hs = Math.max(headingScale, 1e-3);
+  prev = clamp(prev, minS, maxS);
+
+  const uff = new Float64Array(N), G0 = new Float64Array(N), G1 = new Float64Array(N);
+  const H = new Float64Array(N * N), g = new Float64Array(N);
+  let M0 = 1, M1 = 0, M2 = 0, M3 = 1, C0 = 0, C1 = 0;
+  for (let k = 0; k < N; k++) {
+    const kp = k < kap.length ? kap[k] : (kap.length ? kap[kap.length - 1] : 0);
+    const d = feedforward(kp, v, p, minS, maxS); uff[k] = d;
+    const sec = 1 / (Math.cos(d) * Math.cos(d));
+    const a01 = dt * v, b1 = dt * v / a * sec, c1 = dt * (v / a * (Math.tan(d) - sec * d) - kp * Math.abs(v));
+    for (let j = 0; j <= k; j++) G0[j] += a01 * G1[j];
+    G1[k] += b1;
+    C0 += a01 * C1; C1 += c1;
+    const n0 = M0 + a01 * M2, n1 = M1 + a01 * M3; M0 = n0; M1 = n1;
+    const sc = k === N - 1 ? p.q_terminal_scale : 1;
+    const q0 = sc * p.q_lateral / hs, q1 = sc * p.q_heading * hs;
+    const s0 = M0 * ey + M1 * eth + C0, s1 = M2 * ey + M3 * eth + C1;
+    for (let i = 0; i <= k; i++) {
+      for (let j = 0; j <= k; j++) H[i * N + j] += q0 * G0[i] * G0[j] + q1 * G1[i] * G1[j];
+      g[i] += q0 * G0[i] * s0 + q1 * G1[i] * s1;
+    }
+  }
+  for (let k = 0; k < N; k++) {
+    H[k * N + k] += p.r_steer + p.r_steer_rate * (k < N - 1 ? 2 : 1);
+    if (k < N - 1) { H[k * N + k + 1] -= p.r_steer_rate; H[(k + 1) * N + k] -= p.r_steer_rate; }
+    g[k] -= p.r_steer * uff[k];
+  }
+  g[0] -= p.r_steer_rate * prev;
+
+  // Constraints: [U; D U] within [box; prev ± step]
+  const lo = new Float64Array(2 * N), up = new Float64Array(2 * N);
+  for (let k = 0; k < N; k++) { lo[k] = minS; up[k] = maxS; lo[N + k] = -step; up[N + k] = step; }
+  lo[N] += prev; up[N] += prev;
+  const Ax = (x, out) => { for (let k = 0; k < N; k++) { out[k] = x[k]; out[N + k] = k ? x[k] - x[k - 1] : x[0]; } };
+  const ATw = (w, out) => { for (let k = 0; k < N; k++) out[k] = w[k] + w[N + k] - (k < N - 1 ? w[N + k + 1] : 0); };
+
+  let tr = 0; for (let k = 0; k < N; k++) tr += H[k * N + k];
+  const rho = Math.max(1e-3, tr / N), sig = 1e-6, al = 1.6;
+  const K = new Float64Array(H);
+  for (let k = 0; k < N; k++) {
+    K[k * N + k] += sig + rho * (1 + (k < N - 1 ? 2 : 1));
+    if (k < N - 1) { K[k * N + k + 1] -= rho; K[(k + 1) * N + k] -= rho; }
+  }
+  const L = chol(K, N);
+
+  const x = new Float64Array(N), y = new Float64Array(2 * N), z = new Float64Array(2 * N);
+  if (state.warmX && state.warmX.length === N) { for (let k = 0; k < N - 1; k++) x[k] = state.warmX[k + 1]; x[N - 1] = state.warmX[N - 1]; y.set(state.warmY); }
+  else x.set(uff);
+  Ax(x, z); for (let i = 0; i < 2 * N; i++) z[i] = clamp(z[i], lo[i], up[i]);
+
+  const rhs = new Float64Array(N), w = new Float64Array(2 * N), xt = new Float64Array(N), tmp = new Float64Array(N);
+  const zt = new Float64Array(2 * N), atw = new Float64Array(N), axv = new Float64Array(2 * N);
+  let gInf = 0; for (let k = 0; k < N; k++) gInf = Math.max(gInf, Math.abs(g[k]));
+  let it = 0, conv = false;
+  for (; it < p.mpc_max_iterations; it++) {
+    for (let i = 0; i < 2 * N; i++) w[i] = rho * z[i] - y[i];
+    ATw(w, atw);
+    for (let k = 0; k < N; k++) rhs[k] = sig * x[k] - g[k] + atw[k];
+    cholSolve(L, rhs, N, xt, tmp);
+    Ax(xt, zt);
+    for (let k = 0; k < N; k++) x[k] = al * xt[k] + (1 - al) * x[k];
+    for (let i = 0; i < 2 * N; i++) {
+      const zr = al * zt[i] + (1 - al) * z[i];
+      const zn = clamp(zr + y[i] / rho, lo[i], up[i]);
+      y[i] += rho * (zr - zn); z[i] = zn;
+    }
+    Ax(x, axv); let rp = 0; for (let i = 0; i < 2 * N; i++) rp = Math.max(rp, Math.abs(axv[i] - z[i]));
+    ATw(y, atw); let rd = 0;
+    for (let i = 0; i < N; i++) { let s = g[i] + atw[i]; for (let j = 0; j < N; j++) s += H[i * N + j] * x[j]; rd = Math.max(rd, Math.abs(s)); }
+    if (rp < p.mpc_tolerance && rd < p.mpc_tolerance * Math.max(1, gInf)) { conv = true; it++; break; }
+  }
+  let finite = true; for (let k = 0; k < N; k++) if (!Number.isFinite(x[k])) finite = false;
+  if (finite) { state.warmX = Float64Array.from(x); state.warmY = Float64Array.from(y); }
+  else { state.warmX = null; state.warmY = null; x.set(uff); conv = false; }
+
+  const seq = new Float64Array(N); let pv = prev;
+  for (let k = 0; k < N; k++) { const u = clamp(clamp(x[k], pv - step, pv + step), minS, maxS); seq[k] = u; pv = u; }
+  return { seq, it, conv };
+}
+
+// Port of buildReference()
+function buildReference(plan, rx, ry, p, lastYaw) {
+  const res = p.path_resolution;
+  let px = plan[0][0], py = plan[0][1], seg = 0, best = Infinity;
+  const nCheck = Math.min(plan.length - 1, 5);
+  for (let i = 0; i < nCheck; i++) {
+    const [ax, ay] = plan[i], [bx, by] = plan[i + 1];
+    const l2 = (bx - ax) ** 2 + (by - ay) ** 2;
+    const t = l2 > 1e-9 ? clamp(((rx - ax) * (bx - ax) + (ry - ay) * (by - ay)) / l2, 0, 1) : 0;
+    const qx = ax + t * (bx - ax), qy = ay + t * (by - ay), d2 = (rx - qx) ** 2 + (ry - qy) ** 2;
+    if (d2 < best) { best = d2; px = qx; py = qy; seg = i; }
+  }
+  const X = [px], Y = [py];
+  let ax = px, ay = py, dn = res;
+  for (let i = seg + 1; i < plan.length; i++) {
+    const [bx, by] = plan[i], sl = Math.hypot(bx - ax, by - ay); let s = 0;
+    while (sl - s >= dn) { s += dn; X.push(ax + (bx - ax) * s / sl); Y.push(ay + (by - ay) * s / sl); dn = res; }
+    dn -= sl - s; ax = bx; ay = by;
+  }
+  const n = X.length, hw = Math.max(1, Math.round(p.path_smoothing_dist / 2 / res));
+  const yaw = new Array(n), kap = new Array(n).fill(0);
+  for (let i = 0; i < n; i++) { const i0 = Math.max(0, i - hw), i1 = Math.min(n - 1, i + hw); yaw[i] = i1 > i0 ? Math.atan2(Y[i1] - Y[i0], X[i1] - X[i0]) : lastYaw; }
+  for (let i = 0; i < n; i++) { const i0 = Math.max(0, i - hw), i1 = Math.min(n - 1, i + hw); if (i1 > i0) kap[i] = normAng(yaw[i1] - yaw[i0]) / ((i1 - i0) * res); }
+  return { X, Y, yaw, kap };
+}
+function interp(v, s, res) {
+  if (!v.length) return 0;
+  const idx = Math.max(0, s / res), i0 = Math.min(Math.floor(idx), v.length - 1), i1 = Math.min(i0 + 1, v.length - 1);
+  return v[i0] + Math.min(1, idx - i0) * (v[i1] - v[i0]);
+}
+
+// Signed cross-track and heading error of the true pose to the full path
+function trueError(path, x, y, th, fwd, hint) {
+  let best = Infinity, bi = 0, bt = 0;
+  const lo = Math.max(0, hint - 40), hi = Math.min(path.length - 1, hint + 80);
+  for (let i = lo; i < hi; i++) {
+    const [ax, ay] = path[i], [bx, by] = path[i + 1];
+    const l2 = (bx - ax) ** 2 + (by - ay) ** 2;
+    const t = l2 > 1e-12 ? clamp(((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / l2, 0, 1) : 0;
+    const d2 = (x - ax - t * (bx - ax)) ** 2 + (y - ay - t * (by - ay)) ** 2;
+    if (d2 < best) { best = d2; bi = i; bt = t; }
+  }
+  const [ax, ay] = path[bi], [bx, by] = path[bi + 1];
+  const segYaw = Math.atan2(by - ay, bx - ax);
+  const cross = Math.cos(segYaw) * (y - ay) - Math.sin(segYaw) * (x - ax);
+  return { ey: cross, eth: normAng(th - segYaw - (fwd ? 0 : Math.PI)), idx: bi };
+}
+
+function mulberry32(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+function simulate(p) {
+  const path = buildPath(p.path_type, p.path_radius);
+  const fwd = p.direction === 'forward', dir = fwd ? 1 : -1;
+  const goal = path[path.length - 1];
+  const rng = mulberry32(12345);
+  const gauss = () => Math.sqrt(-2 * Math.log(rng() + 1e-12)) * Math.cos(2 * Math.PI * rng());
+
+  // Plant state
+  let x = -Math.sin(0) * p.init_lateral, y = p.init_lateral;
+  let th = normAng((fwd ? 0 : Math.PI) + p.init_heading * Math.PI / 180);
+  let steerMeas = 0, v = 0;
+  // Controller state
+  const ctl = { warmX: null, warmY: null };
+  let plan = path.map(q => q.slice()), lastCmd = 0, lastYaw = 0, nearGoal = false, lagging = false;
+  let cmdV = 0, cmdSteer = 0, jump = null, hint = 0, stopInfo = null, braking = false, brakeT = 0;
+
+  const dtc = 1 / p.controller_rate, dtp = 0.01, subSteps = Math.max(1, Math.round(dtc / dtp));
+  const pathLen = (path.length - 1) * 0.05;
+  const tMax = 3 * pathLen / Math.max(0.05, p.max_vel_x) + 40;
+  const frames = [];
+  let reached = false, failure = '', nonConv = 0, maxIt = 0, solveMs = 0, solves = 0;
+
+  for (let t = 0; t <= tMax; t += dtc) {
+    // ---------------- measured pose ----------------
+    if (p.jump_size !== 0 && !jump && t >= p.jump_time) jump = [-Math.sin(th) * p.jump_size, Math.cos(th) * p.jump_size];
+    const mx = x + (jump ? jump[0] : 0) + p.loc_noise * gauss();
+    const my = y + (jump ? jump[1] : 0) + p.loc_noise * gauss();
+    const mth = th + p.loc_noise_yaw * Math.PI / 180 * gauss();
+
+    // ---------------- controller ----------------
+    let ni = 0, nd = Infinity;
+    for (let i = 0; i < plan.length; i++) { const d = (plan[i][0] - mx) ** 2 + (plan[i][1] - my) ** 2; if (d < nd) { nd = d; ni = i; } }
+    const distGoal = Math.hypot(goal[0] - plan[ni][0], goal[1] - plan[ni][1]);
+    if (plan.length > 3 && ni > 1) plan = plan.slice(ni - 1);
+    const ref = buildReference(plan, mx, my, p, lastYaw);
+    if (ref.X.length > 1) lastYaw = ref.yaw[0];
+    const pathLength = (ref.X.length - 1) * p.path_resolution;
+    const yawRef = normAng(ref.yaw[0] + (fwd ? 0 : Math.PI));
+    const ex = mx - ref.X[0], eyy = my - ref.Y[0];
+    const ey = -Math.sin(yawRef) * ex + Math.cos(yawRef) * eyy;
+    const eth = normAng(mth - yawRef);
+
+    // speed scheduling (STEP 6/7)
+    const previewDist = Math.min(Math.max(p.min_preview_dist, Math.abs(v) * p.mpc_horizon * p.mpc_dt), pathLength);
+    const minS = wheelToCenter(p.min_steering_angle, p), maxS = wheelToCenter(p.max_steering_angle, p);
+    let maxFF = 0;
+    for (let s = 0; s <= previewDist; s += p.path_resolution) maxFF = Math.max(maxFF, Math.abs(centerToWheel(feedforward(interp(ref.kap, s, p.path_resolution), dir, p, minS, maxS), p)));
+    const delta = Math.max(maxFF, Math.abs(lastCmd));
+    let vel, stop = false;
+    if (distGoal > p.error_to_start_stop && !nearGoal) {
+      let lim = delta > 0.3 || lagging ? p.vel_x_when_more_angle : delta > 0.15 ? 0.4 * p.max_vel_x : p.max_vel_x;
+      lim = dir * lim * Math.cos(steerMeas / 2);
+      const acc = clamp(p.weight_acc * (lim - v), -0.7, 0.7);
+      vel = clamp(acc * dtc + v, -p.max_vel_x, p.max_vel_x);
+    } else {
+      nearGoal = true;
+      let tgt = dir * 0.25 * distGoal; if (Math.abs(tgt) < 0.2) tgt = dir * 0.2;
+      tgt *= Math.cos(steerMeas * 2 / 3);
+      const acc = clamp(p.weight_acc * (tgt - v), -1.2, 1.2);
+      vel = clamp(acc * dtc + v, -p.max_vel_x, p.max_vel_x);
+      // Stop when the remaining path equals the creep distance (brake set),
+      // else inside position tolerance
+      let stopDist = p.xy_goal_tolerance, remaining = distGoal, creep = 0;
+      if (p.brake_delay > 0 || p.brake_decel > 0) {
+        creep = Math.abs(v) * p.brake_delay + (p.brake_decel > 0 ? v * v / (2 * p.brake_decel) : 0);
+        stopDist = creep + 0.5 * Math.abs(v) * dtc;
+        remaining = pathLength + Math.hypot(goal[0] - ref.X[ref.X.length - 1], goal[1] - ref.Y[ref.Y.length - 1]);
+      }
+      if (remaining < stopDist) { vel = 0; stop = true; reached = true; stopInfo = { t, speed: v, creep, remaining }; }
+    }
+
+    // MPC (STEP 8)
+    let pred = [], refH = [], it = 0, steerCmd = 0, velPred = 0;
+    if (!stop) {
+      velPred = vel * dir > p.min_mpc_vel ? vel : dir * p.min_mpc_vel;
+      const N = Math.round(p.mpc_horizon), kh = new Array(N);
+      for (let k = 0; k < N; k++) { const s = k * Math.abs(velPred) * p.mpc_dt; kh[k] = s < pathLength ? interp(ref.kap, s, p.path_resolution) : 0; }
+      const hs = !fwd && p.priority_angle_adjustment && distGoal < 0.65 ? 8 : 1;
+      const t0 = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      const sol = mpcSolve(ctl, p, ey, eth, velPred, kh, wheelToCenter(lastCmd, p), hs);
+      solveMs += (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0; solves++;
+      it = sol.it; maxIt = Math.max(maxIt, it); if (!sol.conv) nonConv++;
+      steerCmd = centerToWheel(sol.seq[0], p);
+      lagging = p.steering_lag_slowdown > 0 && Math.abs(steerCmd - steerMeas) > p.steering_lag_slowdown;
+      // prediction rollout from measured pose
+      let qx = mx, qy = my, qth = mth; pred.push([qx, qy]);
+      for (let k = 0; k < N; k++) { qx += velPred * Math.cos(qth) * p.mpc_dt; qy += velPred * Math.sin(qth) * p.mpc_dt; qth += velPred * Math.tan(sol.seq[k]) / p.steer_axle_x * p.mpc_dt; pred.push([qx, qy]); }
+      const hd = Math.abs(velPred) * N * p.mpc_dt;
+      for (let i = 0; i < ref.X.length && i * p.path_resolution <= hd; i += 2) refH.push([ref.X[i], ref.Y[i]]);
+    }
+    lastCmd = steerCmd;
+    cmdV = vel > 0 ? Math.min(vel, p.max_vel_x) : Math.max(-p.max_vel_x, vel);
+    cmdSteer = steerCmd;
+
+    const te = trueError(path, x, y, th, fwd, hint); hint = te.idx;
+    frames.push({ t, x, y, th, mx, my, steer: steerMeas, cmdSteer, v, cmdV, ey: te.ey, eth: te.eth, pred, refH, it });
+
+    if (reached) break;
+    if (Math.abs(te.ey) > 3) { failure = 'Left the path (> 3 m)'; break; }
+
+    // ---------------- plant ----------------
+    plantSteps();
+  }
+
+  // After the stop command the robot rolls on: same speed until the physical
+  // brake acts, then brake deceleration. move_base sends zero steering too.
+  function plantSteps() {
+    for (let s = 0; s < subSteps; s++) {
+      const target = clamp(cmdSteer, p.min_steering_angle, p.max_steering_angle);
+      let rate = p.actuator_tau > 0 ? (target - steerMeas) / p.actuator_tau : (target - steerMeas) / dtp;
+      rate = clamp(rate, -p.actuator_rate, p.actuator_rate);
+      steerMeas += rate * dtp;
+      if (braking) {
+        brakeT += dtp;
+        if (brakeT >= p.real_brake_delay) v -= Math.sign(v) * Math.min(Math.abs(v), Math.max(p.real_brake_decel, 1e-3) * dtp);
+      } else {
+        v += clamp(cmdV - v, -p.plant_accel * dtp, p.plant_accel * dtp);
+      }
+      const dc = wheelToCenter(steerMeas + p.actuator_offset, p);
+      const w = v * Math.tan(dc) / p.steer_axle_x;
+      const hm = th + w * dtp / 2;
+      x += v * Math.cos(hm) * dtp; y += v * Math.sin(hm) * dtp; th = normAng(th + w * dtp);
+    }
+  }
+  if (reached) {
+    braking = true; cmdV = 0; cmdSteer = 0;
+    let t = frames[frames.length - 1].t;
+    while (Math.abs(v) > 1e-4 && t < tMax + 30) {
+      plantSteps(); t += dtc;
+      const te = trueError(path, x, y, th, fwd, hint); hint = te.idx;
+      frames.push({ t, x, y, th, mx: x, my: y, steer: steerMeas, cmdSteer: 0, v, cmdV: 0, ey: te.ey, eth: te.eth, pred: [], refH: [], it: 0 });
+    }
+  }
+  if (!reached && !failure) failure = 'Timed out';
+  const last = frames[frames.length - 1];
+  const errs = frames.map(f => f.ey);
+  // Settled: first time the robot is within 5 cm of the path
+  let settle = errs.findIndex(e => Math.abs(e) < 0.05);
+  const settled = settle >= 0;
+  if (!settled) settle = 0;
+  const tail = errs.slice(settle);
+  const maxE = Math.max(...errs.map(Math.abs));
+  const maxTail = tail.length ? Math.max(...tail.map(Math.abs)) : maxE;
+  const rms = Math.sqrt(errs.reduce((s, e) => s + e * e, 0) / errs.length);
+  // Along the travel direction at the goal: > 0 past the goal, < 0 short of it
+  const ga = path[path.length - 2], gyaw = Math.atan2(goal[1] - ga[1], goal[0] - ga[0]);
+  const along = (last.x - goal[0]) * Math.cos(gyaw) + (last.y - goal[1]) * Math.sin(gyaw);
+  return {
+    path, frames, fwd,
+    result: { reached, failure, time: last.t, maxE, maxTail, rms, settled, settleTime: frames[settle].t, finalPos: Math.hypot(goal[0] - last.x, goal[1] - last.y),
+      finalYaw: last.eth, along, stopInfo, maxIt, nonConv, solves, avgMs: solves ? solveMs / solves : 0 }
+  };
+}
+</script>
+
+<script id="ui">
+// ============================================================================
+// PARAMETERS
+// ============================================================================
+// yaml: key written to mpc_agf_planner_params.yaml; sim-only fields have none
+const GROUPS = [
+  { title: 'Scenario', note: 'sim only', fields: [
+    { id: 'path_type', label: 'Path', type: 'select', value: 'turn_left', options: [['straight', 'Straight 10 m'], ['turn_left', '90° left turn'], ['turn_right', '90° right turn'], ['s_curve', 'S-curve'], ['lane_change', 'Lane change'], ['u_turn', 'U-turn'], ['slalom', 'Slalom']] },
+    { id: 'direction', label: 'Direction', type: 'select', value: 'forward', options: [['forward', 'Forward (+x)'], ['backward', 'Backward (−x)']] },
+    { id: 'path_radius', label: 'Curve radius', unit: 'm', min: 1.5, max: 10, step: 0.1, value: 4 },
+    { id: 'init_lateral', label: 'Start offset left of path', unit: 'm', min: -1, max: 1, step: 0.01, value: 0.3 },
+    { id: 'init_heading', label: 'Start heading error', unit: 'deg', min: -30, max: 30, step: 0.5, value: 5 },
+    { id: 'loc_noise', label: 'Localization noise σ', unit: 'm', min: 0, max: 0.1, step: 0.002, value: 0.01 },
+    { id: 'loc_noise_yaw', label: 'Yaw noise σ', unit: 'deg', min: 0, max: 3, step: 0.05, value: 0.3 },
+    { id: 'jump_size', label: 'Pose jump (sideways)', unit: 'm', min: -0.5, max: 0.5, step: 0.01, value: 0 },
+    { id: 'jump_time', label: 'Pose jump at', unit: 's', min: 0, max: 40, step: 0.5, value: 8 },
+    { id: 'controller_rate', label: 'Controller rate', unit: 'Hz', min: 5, max: 30, step: 1, value: 10, help: 'move_base controller_frequency' },
+  ] },
+  { title: 'Robot geometry', note: 'set from the real robot', fields: [
+    { id: 'steer_axle_x', yaml: 'steer_axle_x', label: 'Steering axle x in base_link', unit: 'm', min: -3, max: 3, step: 0.01, value: -1.25, help: 'Negative: steering behind base_link (rear steering).' },
+    { id: 'track_width', yaml: 'track_width', label: 'Steering pivot distance', unit: 'm', min: 0, max: 2, step: 0.01, value: 0.9, help: 'Example value. Measure between the two steering pivots.' },
+    { id: 'min_steering_angle_deg', yaml: 'min_steering_angle_deg', label: 'Left wheel min angle', unit: 'deg', min: -90, max: 0, step: 0.1, value: -51.6, help: 'Wheels turned right.' },
+    { id: 'max_steering_angle_deg', yaml: 'max_steering_angle_deg', label: 'Left wheel max angle', unit: 'deg', min: 0, max: 90, step: 0.1, value: 40.1, help: 'Wheels turned left.' },
+    { id: 'max_angular_z', yaml: 'max_angular_z', label: 'Absolute steering limit', unit: 'rad', min: 0.2, max: 1.6, step: 0.01, value: 1.0, help: 'Command limit in rad, clips the wheel limits above.' },
+  ] },
+  { title: 'Steering actuator', note: 'sim only', fields: [
+    { id: 'actuator_rate', label: 'Actuator max rate', unit: 'rad/s', min: 0.1, max: 3, step: 0.05, value: 1.0 },
+    { id: 'actuator_tau', label: 'Actuator lag τ', unit: 's', min: 0, max: 1, step: 0.01, value: 0.15 },
+    { id: 'actuator_offset', label: 'Calibration offset', unit: 'rad', min: -0.1, max: 0.1, step: 0.002, value: 0, help: 'True wheel angle minus reported angle.' },
+    { id: 'plant_accel', label: 'Drive max acceleration', unit: 'm/s²', min: 0.1, max: 3, step: 0.05, value: 1.0 },
+    { id: 'real_brake_delay', label: 'Real brake delay', unit: 's', min: 0, max: 2, step: 0.01, value: 0.3, help: 'Robot keeps its speed this long after the stop command.' },
+    { id: 'real_brake_decel', label: 'Real brake deceleration', unit: 'm/s²', min: 0.05, max: 5, step: 0.05, value: 0.8, help: 'Set different from the planner estimate to see the stop error.' },
+  ] },
+  { title: 'Speed', note: 'control() speed logic', fields: [
+    { id: 'max_vel_x', yaml: 'max_vel_x', label: 'Max speed', unit: 'm/s', min: 0.1, max: 2, step: 0.01, value: 0.7 },
+    { id: 'vel_x_when_more_angle', yaml: 'vel_x_when_more_angle', label: 'Speed in sharp turns', unit: 'm/s', min: 0.05, max: 1, step: 0.01, value: 0.35 },
+    { id: 'weight_acc', yaml: 'weight_acc', label: 'Acceleration gain', unit: '1/s', min: 0.1, max: 5, step: 0.05, value: 0.7 },
+    { id: 'error_to_start_stop', yaml: 'error_to_start_stop', label: 'Start slowing at goal distance', unit: 'm', min: 0.2, max: 4, step: 0.05, value: 1.5 },
+    { id: 'xy_goal_tolerance', yaml: 'xy_goal_tolerance', label: 'Goal tolerance', unit: 'm', min: 0.02, max: 0.5, step: 0.01, value: 0.15 },
+    { id: 'steering_lag_slowdown', yaml: 'steering_lag_slowdown', label: 'Slow down when steering lags by', unit: 'rad', min: 0, max: 0.5, step: 0.01, value: 0.15 },
+    { id: 'brake_delay', yaml: 'brake_delay', label: 'Brake delay (planner estimate)', unit: 's', min: 0, max: 2, step: 0.01, value: 0.3, help: 'Time from stop command until the physical brake acts. 0 with decel 0: stop at goal tolerance, no creep compensation.' },
+    { id: 'brake_decel', yaml: 'brake_decel', label: 'Brake deceleration (planner estimate)', unit: 'm/s²', min: 0, max: 5, step: 0.05, value: 0.8, help: 'Creep = v·delay + v²/(2·decel). Stop is commanded when the remaining path equals the creep.' },
+    { id: 'priority_angle_adjustment', label: 'Priority angle adjustment', type: 'select', value: 'false', options: [['false', 'Off'], ['true', 'On']], help: 'Dynamic reconfigure. Heading weight ×8 when backing up within 0.65 m of goal.' },
+  ] },
+  { title: 'MPC', note: 'q_* and r_* also in dynamic reconfigure', fields: [
+    { id: 'mpc_horizon', yaml: 'mpc_horizon', label: 'Horizon steps', unit: '', min: 5, max: 40, step: 1, value: 20, int: true },
+    { id: 'mpc_dt', yaml: 'mpc_dt', label: 'Step length', unit: 's', min: 0.05, max: 0.3, step: 0.01, value: 0.1 },
+    { id: 'q_lateral', yaml: 'q_lateral', label: 'Lateral error weight', unit: '', min: 0, max: 100, step: 0.5, value: 10, help: 'Higher holds the line tighter, with more steering.' },
+    { id: 'q_heading', yaml: 'q_heading', label: 'Heading error weight', unit: '', min: 0, max: 50, step: 0.1, value: 3, help: 'Higher damps overshoot and weaving.' },
+    { id: 'q_terminal_scale', yaml: 'q_terminal_scale', label: 'Terminal weight multiplier', unit: '×', min: 0, max: 20, step: 0.1, value: 3 },
+    { id: 'r_steer', yaml: 'r_steer', label: 'Steering effort weight', unit: '', min: 0, max: 20, step: 0.05, value: 0.5, help: 'Penalizes steering away from the curvature feedforward.' },
+    { id: 'r_steer_rate', yaml: 'r_steer_rate', label: 'Steering change weight', unit: '', min: 0, max: 100, step: 0.5, value: 5, help: 'Higher gives smoother, slower steering.' },
+    { id: 'max_steering_rate', yaml: 'max_steering_rate', label: 'Steering rate limit', unit: 'rad/s', min: 0, max: 3, step: 0.05, value: 0.8, help: 'Hard constraint. Keep at or below the actuator rate. 0 turns it off.' },
+    { id: 'min_mpc_vel', yaml: 'min_mpc_vel', label: 'Min speed in prediction', unit: 'm/s', min: 0.02, max: 0.5, step: 0.01, value: 0.1 },
+    { id: 'mpc_max_iterations', yaml: 'mpc_max_iterations', label: 'Solver iterations', unit: '', min: 20, max: 1000, step: 10, value: 300, int: true },
+    { id: 'mpc_tolerance', yaml: 'mpc_tolerance', label: 'Solver tolerance', unit: '', min: 0.00001, max: 0.01, step: 0.00001, value: 0.0001 },
+  ] },
+  { title: 'Reference path', note: '', fields: [
+    { id: 'path_resolution', yaml: 'path_resolution', label: 'Resample spacing', unit: 'm', min: 0.02, max: 0.2, step: 0.01, value: 0.05 },
+    { id: 'path_smoothing_dist', yaml: 'path_smoothing_dist', label: 'Tangent / curvature window', unit: 'm', min: 0.1, max: 1.5, step: 0.05, value: 0.3 },
+    { id: 'min_preview_dist', yaml: 'min_preview_dist', label: 'Min curve preview distance', unit: 'm', min: 0.2, max: 5, step: 0.1, value: 1.0 },
+  ] },
+];
+const FIELDS = GROUPS.flatMap(g => g.fields);
+const DEFAULTS = Object.fromEntries(FIELDS.map(f => [f.id, f.value]));
+const STORE_KEY = 'mpc-forklift-tuner-v1';
+
+const params = { ...DEFAULTS };
+try { const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); for (const k in saved) if (k in params) params[k] = saved[k]; } catch (e) { /* storage unavailable */ }
+
+function numericParams() {
+  const p = {};
+  for (const f of FIELDS) p[f.id] = f.type === 'select' ? params[f.id] : Number(params[f.id]);
+  p.priority_angle_adjustment = params.priority_angle_adjustment === 'true';
+  // Same as initialize(): wheel limits in degrees, to rad, within max_angular_z
+  p.min_steering_angle = Math.max(-p.max_angular_z, p.min_steering_angle_deg * Math.PI / 180);
+  p.max_steering_angle = Math.min(p.max_angular_z, p.max_steering_angle_deg * Math.PI / 180);
+  if (Math.abs(p.steer_axle_x) < 0.1) p.steer_axle_x = p.steer_axle_x < 0 ? -0.1 : 0.1;
+  return p;
+}
+
+// ============================================================================
+// PARAMETER RACK
+// ============================================================================
+const rack = document.getElementById('rack');
+const decimals = f => f.int ? 0 : Math.max(0, Math.min(5, (String(f.step).split('.')[1] || '').length));
+function buildRack() {
+  rack.innerHTML = '';
+  for (const g of GROUPS) {
+    const sec = document.createElement('section'); sec.className = 'panel group';
+    sec.innerHTML = `<header><h2>${g.title}</h2><span>${g.note}</span></header>`;
+    for (const f of g.fields) {
+      const row = document.createElement('div'); row.className = 'field' + (f.type === 'select' ? '' : '');
+      const keyLine = f.yaml ? `<small>${f.yaml}${f.unit ? ' · ' + f.unit : ''}</small>` : (f.unit ? `<small>${f.unit}</small>` : '');
+      if (f.type === 'select') {
+        row.innerHTML = `<label for="f_${f.id}">${f.label}${keyLine}</label><select id="f_${f.id}">${f.options.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`;
+        const sel = row.querySelector('select'); sel.value = params[f.id];
+        sel.addEventListener('change', () => { params[f.id] = sel.value; changed(); });
+      } else {
+        row.innerHTML = `<label for="f_${f.id}">${f.label}${keyLine}</label>
+          <input id="f_${f.id}" type="number" min="${f.min}" max="${f.max}" step="${f.step}">
+          <input id="r_${f.id}" type="range" min="${f.min}" max="${f.max}" step="${f.step}" aria-label="${f.label}">`;
+        const num = row.querySelector('input[type=number]'), rng = row.querySelector('input[type=range]');
+        const set = v => { num.value = Number(v).toFixed(decimals(f)); rng.value = v; };
+        set(params[f.id]);
+        rng.addEventListener('input', () => { params[f.id] = Number(rng.value); num.value = Number(rng.value).toFixed(decimals(f)); changed(); });
+        num.addEventListener('change', () => { let v = Number(num.value); if (!Number.isFinite(v)) v = params[f.id]; params[f.id] = v; set(v); changed(); });
+      }
+      if (f.help) { const h = document.createElement('div'); h.className = 'help'; h.textContent = f.help; row.appendChild(h); }
+      sec.appendChild(row);
+    }
+    rack.appendChild(sec);
+  }
+  const ys = document.createElement('section'); ys.className = 'panel yaml';
+  ys.innerHTML = `<header><h2>Planner config</h2></header>
+    <div class="note">Paste under <span class="mono">MpcAgfPlannerROS:</span> in <span class="mono">mpc_agf_planner_params.yaml</span>. Only the planner parameters are included; the scenario and actuator fields are for the simulation.</div>
+    <pre id="yamlOut" tabindex="0"></pre>
+    <div class="row"><button id="btnCopy" type="button" class="primary">Copy YAML</button><button id="btnDefaults" type="button">Reset to defaults</button><span class="note" id="copyMsg" role="status"></span></div>`;
+  rack.appendChild(ys);
+  document.getElementById('btnCopy').addEventListener('click', copyYaml);
+  document.getElementById('btnDefaults').addEventListener('click', () => { Object.assign(params, DEFAULTS); buildRack(); changed(); });
+  renderYaml();
+}
+
+function yamlText() {
+  const lines = ['MpcAgfPlannerROS:'];
+  for (const g of GROUPS) {
+    const fs = g.fields.filter(f => f.yaml); if (!fs.length) continue;
+    lines.push(`  # ${g.title}`);
+    for (const f of fs) lines.push(`  ${f.yaml}: ${f.int ? Math.round(params[f.id]) : Number(Number(params[f.id]).toFixed(decimals(f)))}`);
+  }
+  return lines.join('\n');
+}
+function renderYaml() { const el = document.getElementById('yamlOut'); if (el) el.textContent = yamlText(); }
+function copyYaml() {
+  const msg = document.getElementById('copyMsg');
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('yamlOut')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); msg.textContent = 'Selected. Press Ctrl+C to copy.'; };
+  try { navigator.clipboard.writeText(yamlText()).then(() => { msg.textContent = 'Copied'; }, fallback); } catch (e) { fallback(); }
+}
+
+// ============================================================================
+// RUN / PLAYBACK
+// ============================================================================
+let run = null, prevRun = null, frameIdx = 0, playing = false, lastTs = 0, simClock = 0, timer = 0;
+const scrub = document.getElementById('scrub');
+
+function changed() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(params)); } catch (e) { /* storage unavailable */ }
+  renderYaml();
+  clearTimeout(timer); timer = setTimeout(recompute, 150);
+}
+function recompute() {
+  if (run) prevRun = run;
+  run = simulate(numericParams());
+  scrub.max = run.frames.length - 1;
+  frameIdx = run.frames.length - 1; simClock = run.frames[frameIdx].t;
+  scrub.value = frameIdx;
+  setPlaying(false);
+  renderStats(); drawAll();
+}
+function setPlaying(on) { playing = on; document.getElementById('btnPlay').textContent = on ? 'Pause' : 'Play'; if (on) { lastTs = 0; requestAnimationFrame(tick); } }
+function tick(ts) {
+  if (!playing) return;
+  if (lastTs) simClock += (ts - lastTs) / 1000 * Number(document.getElementById('selSpeed').value);
+  lastTs = ts;
+  const fr = run.frames;
+  while (frameIdx < fr.length - 1 && fr[frameIdx + 1].t <= simClock) frameIdx++;
+  scrub.value = frameIdx; drawAll();
+  if (frameIdx >= fr.length - 1) { setPlaying(false); return; }
+  requestAnimationFrame(tick);
+}
+document.getElementById('btnPlay').addEventListener('click', () => {
+  if (playing) { setPlaying(false); return; }
+  if (frameIdx >= run.frames.length - 1) { frameIdx = 0; simClock = 0; }
+  else simClock = run.frames[frameIdx].t;
+  setPlaying(true);
+});
+document.getElementById('btnRestart').addEventListener('click', () => { frameIdx = 0; simClock = 0; scrub.value = 0; setPlaying(true); });
+scrub.addEventListener('input', () => { setPlaying(false); frameIdx = Number(scrub.value); simClock = run.frames[frameIdx].t; drawAll(); });
+
+// ============================================================================
+// STATS
+// ============================================================================
+function renderStats() {
+  const r = run.result, pr = prevRun && prevRun.result;
+  const cmp = (cur, old, unit, digits) => {
+    if (old === undefined || old === null) return '';
+    const d = cur - old; if (Math.abs(d) < Math.pow(10, -digits) / 2) return '<span class="d">same as previous</span>';
+    return `<span class="d ${d < 0 ? 'better' : 'worse'}">${d < 0 ? '−' : '+'}${Math.abs(d).toFixed(digits)} ${unit} vs previous</span>`;
+  };
+  const cm = v => (v * 100).toFixed(1);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span class="k">Result</span><span class="v"><span class="pill ${r.reached ? 'good' : 'bad'}">${r.reached ? 'Goal reached' : r.failure}</span></span><span class="d">${r.time.toFixed(1)} s</span></div>
+    <div class="stat"><span class="k">Max cross-track</span><span class="v">${cm(r.maxE)} cm</span>${cmp(r.maxE * 100, pr && pr.maxE * 100, 'cm', 1)}</div>
+    <div class="stat"><span class="k">Max after settling</span><span class="v">${r.settled ? cm(r.maxTail) + ' cm' : '—'}</span><span class="d">${r.settled ? 'within 5 cm at ' + r.settleTime.toFixed(1) + ' s' : 'never within 5 cm'}</span>${r.settled && pr && pr.settled ? cmp(r.maxTail * 100, pr.maxTail * 100, 'cm', 1) : ''}</div>
+    <div class="stat"><span class="k">RMS cross-track</span><span class="v">${cm(r.rms)} cm</span>${cmp(r.rms * 100, pr && pr.rms * 100, 'cm', 1)}</div>
+    <div class="stat"><span class="k">Stop position</span><span class="v">${Math.abs(r.along) < 0.0005 ? 'on goal' : cm(Math.abs(r.along)) + ' cm ' + (r.along > 0 ? 'past' : 'short')}</span><span class="d">${r.stopInfo ? 'stop cmd at ' + r.stopInfo.speed.toFixed(2) + ' m/s · creep ' + cm(r.stopInfo.creep) + ' cm' : 'no stop command'}</span></div>
+    <div class="stat"><span class="k">Solver</span><span class="v">${r.maxIt} it</span><span class="d">${r.nonConv} not converged · ${r.avgMs.toFixed(2)} ms</span></div>`;
+}
+
+// ============================================================================
+// DRAWING
+// ============================================================================
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function fitCanvas(cv) {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w: r.width, h: r.height };
+}
+
+function drawWorld() {
+  const cv = document.getElementById('world'), { ctx, w, h } = fitCanvas(cv);
+  const C = { bg: css('--panel'), line: css('--line'), path: css('--path'), trail: css('--trail'), acc: css('--accent'), ghost: css('--ghost'), ink: css('--ink'), muted: css('--muted'), sunk: css('--sunk') };
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, w, h);
+  const p = numericParams(), path = run.path, f = run.frames[frameIdx];
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const [x, y] of path) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  const reach = Math.abs(p.steer_axle_x) + 1.8;
+  x0 -= reach; x1 += reach; y0 -= reach; y1 += reach;
+  const top = 34, s = Math.min(w / (x1 - x0), (h - top) / (y1 - y0));
+  const ox = (w - s * (x1 - x0)) / 2 - s * x0, oy = top + (h - top + s * (y1 - y0)) / 2 + s * y0;
+  const X = x => ox + s * x, Y = y => oy - s * y;
+
+  // 1 m grid
+  ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath();
+  for (let gx = Math.ceil(x0); gx <= x1; gx++) { ctx.moveTo(X(gx), 0); ctx.lineTo(X(gx), h); }
+  for (let gy = Math.ceil(y0); gy <= y1; gy++) { ctx.moveTo(0, Y(gy)); ctx.lineTo(w, Y(gy)); }
+  ctx.stroke();
+  ctx.fillStyle = C.muted; ctx.font = '11px "IBM Plex Mono", monospace'; ctx.fillText('grid 1 m', 10, h - 10);
+
+  const poly = (pts, color, width, dash) => { if (pts.length < 2) return; ctx.strokeStyle = color; ctx.lineWidth = width; ctx.setLineDash(dash || []); ctx.beginPath(); ctx.moveTo(X(pts[0][0]), Y(pts[0][1])); for (const q of pts) ctx.lineTo(X(q[0]), Y(q[1])); ctx.stroke(); ctx.setLineDash([]); };
+  poly(path, C.path, 2.5);
+  // goal
+  const g = path[path.length - 1];
+  ctx.strokeStyle = C.path; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X(g[0]), Y(g[1]), Math.max(4, s * p.xy_goal_tolerance), 0, 2 * Math.PI); ctx.stroke();
+
+  if (prevRun) poly(prevRun.frames.map(q => [q.x, q.y]), C.ghost, 1.5, [5, 4]);
+  poly(run.frames.slice(0, frameIdx + 1).map(q => [q.x, q.y]), C.trail, 1.75);
+  if (f.refH.length) { ctx.globalAlpha = 0.35; poly(f.refH, C.path, 7); ctx.globalAlpha = 1; }
+  if (f.pred.length) {
+    poly(f.pred, C.acc, 2.5);
+    ctx.fillStyle = C.acc; for (const q of f.pred) { ctx.beginPath(); ctx.arc(X(q[0]), Y(q[1]), 2.2, 0, 2 * Math.PI); ctx.fill(); }
+  }
+
+  // robot body in its own frame
+  const a = p.steer_axle_x, W = p.track_width > 0 ? p.track_width : 0.9;
+  ctx.save(); ctx.translate(X(f.x), Y(f.y)); ctx.scale(s, -s); ctx.rotate(f.th);
+  const bx0 = Math.min(0, a) - 0.45, bx1 = Math.max(0, a) + 0.45, bw = W / 2 + 0.12;
+  ctx.fillStyle = C.sunk; ctx.globalAlpha = 0.85; ctx.fillRect(bx0, -bw, bx1 - bx0, 2 * bw); ctx.globalAlpha = 1;
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5 / s; ctx.strokeRect(bx0, -bw, bx1 - bx0, 2 * bw);
+  // forks on the fixed-axle side
+  const fx = a < 0 ? bx1 : bx0, fdir = a < 0 ? 1 : -1;
+  ctx.fillStyle = C.muted; for (const fy of [-W / 4, W / 4]) ctx.fillRect(Math.min(fx, fx + fdir * 1.0), fy - 0.05, 1.0, 0.1);
+  const wheel = (cx, cy, ang, color) => { ctx.save(); ctx.translate(cx, cy); ctx.rotate(ang); ctx.fillStyle = color; ctx.fillRect(-0.2, -0.07, 0.4, 0.14); ctx.restore(); };
+  wheel(0, W / 2, 0, C.ink); wheel(0, -W / 2, 0, C.ink);
+  const dc = wheelToCenter(f.steer + p.actuator_offset, p);
+  wheel(a, W / 2, f.steer + p.actuator_offset, C.acc); wheel(a, -W / 2, centerToRight(dc, p), C.acc);
+  // base_link and +x arrow
+  ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(0, 0, 0.07, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 2 / s; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0.6, 0); ctx.lineTo(0.48, 0.08); ctx.moveTo(0.6, 0); ctx.lineTo(0.48, -0.08); ctx.stroke();
+  ctx.restore();
+  if (p.loc_noise > 0 || p.jump_size !== 0) { ctx.strokeStyle = C.acc; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(X(f.mx), Y(f.my), 4, 0, 2 * Math.PI); ctx.stroke(); }
+
+  document.getElementById('hud').innerHTML = `t <b>${f.t.toFixed(1)} s</b> · v <b>${f.v.toFixed(2)}</b> m/s · δL <b>${(f.steer * 180 / Math.PI).toFixed(1)}</b>° · e <b>${(f.ey * 100).toFixed(1)}</b> cm`;
+  document.getElementById('tLabel').textContent = f.t.toFixed(1) + ' s';
+}
+
+function niceStep(range) { const r = range / 4, m = Math.pow(10, Math.floor(Math.log10(r))), n = r / m; return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * m; }
+function drawChart(id, series, tEnd, minSpan) {
+  const cv = document.getElementById(id), { ctx, w, h } = fitCanvas(cv);
+  const C = { bg: css('--panel'), line: css('--line'), muted: css('--muted'), ink: css('--ink') };
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, w, h);
+  let lo = Infinity, hi = -Infinity;
+  for (const se of series) for (const [, v] of se.data) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+  if (!Number.isFinite(lo)) { lo = -1; hi = 1; }
+  lo = Math.min(lo, 0); hi = Math.max(hi, 0);
+  if (hi - lo < minSpan) { const c = (hi + lo) / 2; lo = c - minSpan / 2; hi = c + minSpan / 2; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const L = 46, R = 8, T = 6, B = 20, pw = w - L - R, ph = h - T - B;
+  const X = t => L + pw * t / tEnd, Y = v => T + ph * (hi - v) / (hi - lo);
+  ctx.font = '10.5px "IBM Plex Mono", monospace'; ctx.fillStyle = C.muted; ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+  const st = niceStep(hi - lo);
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let v = Math.ceil(lo / st) * st; v <= hi; v += st) {
+    const yy = Math.round(Y(v)) + 0.5; ctx.beginPath(); ctx.moveTo(L, yy); ctx.lineTo(w - R, yy); ctx.stroke();
+    ctx.fillText((Math.abs(v) < st / 1e3 ? 0 : v).toFixed(st < 0.01 ? 3 : st < 0.1 ? 2 : st < 1 ? 1 : 0), L - 6, yy);
+  }
+  const ts = niceStep(tEnd); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let t = 0; t <= tEnd + 1e-9; t += ts) ctx.fillText(t.toFixed(ts < 1 ? 1 : 0) + 's', X(t), h - B + 5);
+  ctx.strokeStyle = C.muted; ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(w - R, Y(0)); ctx.stroke();
+  for (const se of series) {
+    if (se.data.length < 2) continue;
+    ctx.strokeStyle = se.color; ctx.lineWidth = se.width || 1.75; ctx.setLineDash(se.dash || []);
+    ctx.beginPath(); se.data.forEach(([t, v], i) => i ? ctx.lineTo(X(t), Y(v)) : ctx.moveTo(X(t), Y(v))); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  const ct = run.frames[frameIdx].t;
+  ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(X(ct), T); ctx.lineTo(X(ct), T + ph); ctx.stroke(); ctx.globalAlpha = 1;
+}
+
+function drawAll() {
+  if (!run) return;
+  drawWorld();
+  const acc = css('--accent'), ghost = css('--ghost'), trail = css('--trail');
+  const fr = run.frames, pf = prevRun ? prevRun.frames : [];
+  const tEnd = Math.max(fr[fr.length - 1].t, pf.length ? pf[pf.length - 1].t : 0, 1);
+  const ser = (frames, key, k = 1) => frames.map(q => [q.t, q[key] * k]);
+  const deg = 180 / Math.PI;
+  drawChart('cErr', [{ data: ser(pf, 'ey'), color: ghost, dash: [4, 3], width: 1.25 }, { data: ser(fr, 'ey'), color: acc }], tEnd, 0.05);
+  drawChart('cHead', [{ data: ser(pf, 'eth', deg), color: ghost, dash: [4, 3], width: 1.25 }, { data: ser(fr, 'eth', deg), color: acc }], tEnd, 2);
+  drawChart('cSteer', [{ data: ser(fr, 'cmdSteer', deg), color: acc }, { data: ser(fr, 'steer', deg), color: trail, width: 1.25 }], tEnd, 5);
+  drawChart('cSpeed', [{ data: ser(fr, 'cmdV'), color: acc }, { data: ser(fr, 'v'), color: trail, width: 1.25 }], tEnd, 0.2);
+}
+
+buildRack();
+recompute();
+new ResizeObserver(() => drawAll()).observe(document.querySelector('.stage'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
+new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>

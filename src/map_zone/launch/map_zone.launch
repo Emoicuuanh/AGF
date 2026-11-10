@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="map_zone" type="check_map_zone.py" name="map_zone_reader_node" output="screen">
+        <rosparam command="load" file="$(find amr_config)/cfg/map_zone/map_zone.yaml" />
+    </node>
+    <node pkg="map_zone" type="config_IP.py" name="config_ip_subscriber" output="screen">
+    </node>
+</launch>

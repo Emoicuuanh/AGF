@@ -1,0 +1,34 @@
+<launch>
+  <!-- Arguments -->
+  <arg name="simulation" default="false" />
+  <arg name="map_file" default="" />
+  <arg name="use_amcl" default="true" />
+  <arg name="use_aruco_marker" default="true" />
+  <arg name="use_map_server" default="true" />
+  <arg name="initial_pose_x" default="0.0" />
+  <arg name="initial_pose_y" default="0.0" />
+  <arg name="initial_pose_a" default="0.0" />
+  <arg name="aruco_file_path" default="" />
+  <arg name="subfix" default="py" />
+
+  <param if="$(arg simulation)" name="/use_sim_time" value="true" />
+  <param unless="$(arg simulation)" name="/use_sim_time" value="false" />
+
+  <!-- Map server -->
+  <node if="$(arg use_map_server)" pkg="map_server" name="map_server" type="map_server"
+    args="$(arg map_file).yaml" />
+
+  <!-- AMCL -->
+  <include if="$(arg use_amcl)" file="$(find slam_manager)/launch/amcl.launch">
+    <arg name="initial_pose_x" value="$(arg initial_pose_x)" />
+    <arg name="initial_pose_y" value="$(arg initial_pose_y)" />
+    <arg name="initial_pose_a" value="$(arg initial_pose_a)" />
+  </include>
+
+  <!-- Load Aruco marker -->
+  <include if="$(arg use_aruco_marker)" file="$(find agvlidar_fiducial)/launch/locate_marker.launch">
+    <arg name="subfix" value="$(arg subfix)" />
+    <arg name="file_path" value="$(arg aruco_file_path)" />
+  </include>
+
+</launch>

@@ -1,0 +1,171 @@
+<launch>
+	<!-- Arguments -->
+	<arg name="map_file" default="map_1" />
+	<arg name="map_file_simulation" default="CCL" />
+	<arg name="use_rviz" default="false" />
+	<arg name="simulation" default="false" />
+	<arg name="use_hardware" default="true" />
+	<arg name="use_bringup" default="true" />
+	<arg name="use_joystick" default="true" />
+	<arg name="cmd_vel_final" default="/final_cmd_vel_mux/output" />
+	<arg name="use_safety" default="false" />
+	<arg if="$(arg simulation)" name="simulation_str" default="-s" />
+	<arg unless="$(arg simulation)" name="simulation_str" default="" />
+	<arg name="subfix" default="py" />
+
+	<!-- Encode this address -->
+	<param name="mongodb_address" value="mongodb://coffee:coffee@localhost:27017" />
+
+	<!-- If /use_sim_time = false: mrpt and move_base cannot launch same time with other node in
+	simulation -->
+	<param if="$(arg simulation)" name="/use_sim_time" value="true" />
+	<param unless="$(arg simulation)" name="/use_sim_time" value="false" />
+
+	<!-- Bringup -->
+	<group if="$(arg use_bringup)">
+		<include file="$(find agvlidar_bringup)/launch/agvlidar_bringup.launch">
+			<arg name="simulation" value="$(arg simulation)" />
+			<arg name="map_file_simulation" value="$(arg map_file_simulation)" />
+			<arg name="cmd_vel_final" value="$(arg cmd_vel_final)" />
+			<arg name="use_joystick" value="$(arg use_joystick)" />
+			<arg name="use_hardware" value="$(arg use_hardware)" />
+			<arg name="subfix" value="$(arg subfix)" />
+		</include>
+	</group>
+
+	<!-- <node pkg="move_base_manager" type="move_base_manager.$(arg subfix)"
+		name="move_base_manager"
+		output="log">
+	</node> -->
+
+	<include file="$(find agvlidar_navigation)/launch/move_base.launch" />
+
+	<!-- Rviz -->
+	<group if="$(arg use_rviz)">
+		<include file="$(find agvlidar_navigation)/launch/rviz.launch" />
+	</group>
+
+	<!-- Safety -->
+	<group if="$(arg use_safety)">
+		<include file="$(find agvlidar_common)/launch/safety.launch">
+			<arg name="subfix" value="$(arg subfix)" />
+		</include>
+	</group>
+
+	<!-- slam_manager -->
+	<include file="$(find agvlidar_common)/launch/fake_slam.launch">
+		<arg name="subfix" value="$(arg subfix)" />
+		<arg name="simulation" value="$(arg simulation)" />
+		<arg if="$(arg simulation)" name="map_file" value="$(arg map_file_simulation)" />
+		<arg unless="$(arg simulation)" name="map_file" value="$(arg map_file)" />
+	</include>
+
+	<!-- moving_control -->
+	<include file="$(find agvlidar_common)/launch/moving_control.launch">
+		<arg name="subfix" value="$(arg subfix)" />
+		<arg name="simulation" value="$(arg simulation)" />
+	</include>
+
+	<!-- mission_manager -->
+	<include file="$(find agvlidar_common)/launch/mission_manager.launch">
+		<arg name="subfix" value="$(arg subfix)" />
+	</include>
+
+	<!-- control_system -->
+	<include file="$(find agvlidar_common)/launch/control_system.launch">
+		<arg name="subfix" value="$(arg subfix)" />
+		<arg name="simulation" value="$(arg simulation)" />
+	</include>
+
+	<!-- slam_manager -->
+	<!-- <include file="$(find agvlidar_common)/launch/slam_manager.launch">
+		<arg name="subfix" value="$(arg subfix)" />
+		<arg name="simulation" value="$(arg simulation)" />
+	</include> -->
+
+	<!-- rosnode_list (for mav_interface) -->
+	<node name="rosnode_list" pkg="control_system" type="rosnode_list.$(arg subfix)" output="screen" />
+
+	<!-- clear_log -->
+	<node name="clear_log" pkg="clear_log" type="clear_log.$(arg subfix)" args="-k 2" />
+
+	<!-- map_to_img (for mav_interface) -->
+	<include file="$(find slam_manager)/launch/map_to_img.launch" />
+
+	<!-- trigger_manager -->
+	<node name="trigger_manager" pkg="control_system" type="trigger_manager.$(arg subfix)"
+		output="screen" />
+	<node pkg="control_system" type="trigger_mission_server.$(arg subfix)"
+		name="trigger_mission_server"
+		output="screen" />
+	<node pkg="control_system" type="trigger_mission_by_name.$(arg subfix)"
+		name="trigger_mission_by_name"
+		output="screen" />
+
+	<!-- waiting_action -->
+	<node pkg="waiting_action" type="stop_and_wait.$(arg subfix)" name="stop_and_wait"
+		args="--config_path $(find amr_config)/cfg/waiting_action" />
+
+	<!-- pick and place pallet action-->
+	<include file="$(find pick_and_place_pallet)/launch/detect_pallet.launch" />
+
+	<include file="$(find correct_angle_pose)/launch/correct_angle_pose.launch" />
+
+
+	<!-- agf common action-->
+	<!-- <node name="rotate_to_pose" pkg="agf_action_common" type="rotate_to_pose" output="screen" /> -->
+
+	<!-- mrpt slam -->
+	<include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
+		<arg name="time" value="20" />
+		<arg name="pkg" value="agvlidar_navigation" />
+		<arg name="file" value="mrpt_slam.launch" />
+		<arg name="node_name" value="timed_roslaunch" />
+	</include>
+	<!-- system agf -->
+	<include file="$(find system_agf)/launch/agf_system.launch"/>
+	<!-- dont use this -->
+	<!-- <include file="$(find system_agf)/launch/update_path_pick_pallet.launch"/> -->
+	<!-- sound agf -->
+	<node name="sound_control" pkg="sound_control" type="sound_control_server.py" output="log"
+		args="--config_file $(find amr_config)/cfg/sound_control/sound_control.yaml" />
+
+	<!-- check_error -->
+	<node pkg="check_error_agf" type="check_error_agf.$(arg subfix)" name="check_error_agf" />
+	<node pkg="check_error_agf" type="check_wifi_status.$(arg subfix)" name="check_wifi_agf" />
+	<node pkg="check_error_agf" type="control_error.$(arg subfix)" name="control_error_agf" />
+	<include file="$(find check_error_agf)/launch/position_jump_monitor.launch"/>
+	<node name="sensorAPI" pkg="sensorAPI" type="client.$(arg subfix)" output="screen">
+		<param name="config_file" value="$(find amr_config)/cfg/sensorAPI/config.yaml" />
+	</node>
+	<!-- safety AI -->
+	<include file="$(find safety_canon)/launch/safety_canon.launch"/>
+
+	<!-- safety zone handle nodes -->
+	<include file="$(find map_zone)/launch/map_zone.launch"/>
+	<!-- <node pkg="agf_local_planner" type="set_safety_job.py" name="set_safety_job" output="screen" /> -->
+
+	<include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
+		<arg name="time" value="20" />
+		<arg name="pkg" value="agvlidar_common" />
+		<arg name="file" value="agf_safety_zone.launch" />
+		<arg name="node_name" value="timed_roslaunch_agf_safety_zone" />
+	</include>
+
+	<!-- Use for NAV350 testing -->
+	<node pkg="map_server"
+      type="map_server"
+      name="nav350_map_server"
+      args="/home/mkac/tmp/ros/maps/test_map.yaml"
+      output="screen" />
+
+	<include file="$(find mock_robot_pose)/launch/mock_pose.launch" />
+
+	<node pkg="rosbridge_server" type="rosbridge_websocket" name="rosbridge_websocket" output="screen">
+		<param name="port" value="9090" />
+	</node>
+
+	<node pkg="agvlidar_common" type="map_binary_ws.py" name="map_binary_ws" output="log"></node>
+
+
+</launch>

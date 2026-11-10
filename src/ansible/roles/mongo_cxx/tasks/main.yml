@@ -1,0 +1,52 @@
+---
+# agf_system links mongocxx/bsoncxx from /usr/local and includes the
+# mnmlstc polyfill path, so build both drivers from source into /usr/local.
+- name: Check if mongocxx is already installed
+  ansible.builtin.stat:
+    path: /usr/local/lib/libmongocxx.so
+  register: mongocxx_lib
+
+- name: Build mongo-c-driver and mongo-cxx-driver
+  when: not mongocxx_lib.stat.exists
+  block:
+    - name: Download mongo-c-driver {{ mongo_c_driver_version }}
+      ansible.builtin.unarchive:
+        src: "https://github.com/mongodb/mongo-c-driver/releases/download/{{ mongo_c_driver_version }}/mongo-c-driver-{{ mongo_c_driver_version }}.tar.gz"
+        dest: "{{ src_build_dir }}"
+        remote_src: true
+        creates: "{{ src_build_dir }}/mongo-c-driver-{{ mongo_c_driver_version }}"
+
+    - name: Build and install mongo-c-driver
+      ansible.builtin.shell: |
+        set -e
+        mkdir -p cmake-build && cd cmake-build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+                 -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF
+        make -j{{ build_jobs }}
+        make install
+      args:
+        chdir: "{{ src_build_dir }}/mongo-c-driver-{{ mongo_c_driver_version }}"
+        executable: /bin/bash
+
+    - name: Download mongo-cxx-driver {{ mongo_cxx_driver_version }}
+      ansible.builtin.unarchive:
+        src: "https://github.com/mongodb/mongo-cxx-driver/releases/download/{{ mongo_cxx_driver_version }}/mongo-cxx-driver-{{ mongo_cxx_driver_version }}.tar.gz"
+        dest: "{{ src_build_dir }}"
+        remote_src: true
+        creates: "{{ src_build_dir }}/mongo-cxx-driver-{{ mongo_cxx_driver_version }}"
+
+    - name: Build and install mongo-cxx-driver
+      ansible.builtin.shell: |
+        set -e
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+                 -DCMAKE_PREFIX_PATH=/usr/local -DBSONCXX_POLY_USE_MNMLSTC=1 \
+                 -DBUILD_VERSION={{ mongo_cxx_driver_version | regex_replace('^r', '') }}
+        make -j{{ build_jobs }}
+        make install
+      args:
+        chdir: "{{ src_build_dir }}/mongo-cxx-driver-{{ mongo_cxx_driver_version }}"
+        executable: /bin/bash
+
+    - name: Refresh linker cache
+      ansible.builtin.command: ldconfig

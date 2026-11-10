@@ -1,0 +1,18 @@
+<launch>
+	<arg name="simulation" default="false" />
+	<arg name="subfix" default="py" />
+
+	<!-- Topic cần đổi thành /scan_map -->
+	<!-- <node name="robot_pose_publisher" pkg="robot_pose_publisher" type="robot_pose_publisher">
+		<param unless="$(arg simulation)" name="laser_frame" value="base_link" />
+		<param unless="$(arg simulation)" name="laser_map_frame" value="nav_footprint" />
+		<param if="$(arg simulation)" name="laser_frame" value="base_link" />
+		<param if="$(arg simulation)" name="laser_map_frame" value="base_link" />
+	</node> -->
+
+	<group unless="$(arg simulation)">
+		<node name="forklift_tf_publisher" pkg="robot_pose_publisher" type="forklift_tf_publisher">
+			<rosparam file="$(find amr_config)/cfg/tf_agf_robot.yaml" command="load"/>
+		</node>
+	</group>
+</launch>

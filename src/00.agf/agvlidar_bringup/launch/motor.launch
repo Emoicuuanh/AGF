@@ -1,0 +1,11 @@
+<launch>
+	<arg name="cmd_vel_final" default="/final_cmd_vel_mux/output"/>
+	<!-- Motor -->
+	<node name="keya_dual_servo" pkg="keya_servo" type="keya_dual_servo.py" output="screen">
+		<rosparam file="$(find amr_config)/cfg/motor.yaml" command="load"/>
+		<rosparam file="$(find amr_config)/cfg/transform.yaml" command="load"/>
+		<remap from="cmd_vel" to="$(arg cmd_vel_final)"/>
+		<param name="use_encoder" value="true"/>
+	</node>
+
+</launch>

@@ -1,0 +1,26 @@
+<launch>
+	<arg name="use_smoother_joystick" default="true" />
+
+	<!-- velocity smoother -->
+	<group if="$(arg use_smoother_joystick)">
+		<arg name="node_name" value="joystick_velocity_smoother" />
+		<arg name="nodelet_manager_name" value="smoother_joystick_nodelet_manager" />
+		<arg name="config_file" value="$(find agvlidar_bringup)/cfg/joystick_velocity_smoother.yaml" />
+		<arg name="raw_cmd_vel_topic" value="teleop_joy_cmd_vel" />
+		<arg name="smooth_cmd_vel_topic" value="joystick_smoother_cmd_vel" />
+		<arg name="robot_cmd_vel_topic" value="robot_cmd_vel" />
+		<arg name="odom_topic" value="odom" />
+
+		<node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager_name)" args="manager" />
+
+		<include file="$(find yocs_velocity_smoother)/launch/velocity_smoother.launch">
+			<arg name="node_name" value="$(arg node_name)" />
+			<arg name="nodelet_manager_name" value="$(arg nodelet_manager_name)" />
+			<arg name="config_file" value="$(arg config_file)" />
+			<arg name="raw_cmd_vel_topic" value="$(arg raw_cmd_vel_topic)" />
+			<arg name="smooth_cmd_vel_topic" value="$(arg smooth_cmd_vel_topic)" />
+			<arg name="robot_cmd_vel_topic" value="$(arg robot_cmd_vel_topic)" />
+			<arg name="odom_topic" value="$(arg odom_topic)" />
+		</include>
+	</group>
+</launch>

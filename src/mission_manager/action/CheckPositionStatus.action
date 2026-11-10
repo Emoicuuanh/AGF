@@ -1,0 +1,12 @@
+#goal
+float64 x
+float64 y
+float64 theta
+bool desired
+float32 timeout
+---
+#result
+bool result
+---
+#feedback
+float32 rest_time

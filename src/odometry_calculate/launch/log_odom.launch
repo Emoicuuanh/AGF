@@ -1,0 +1,7 @@
+<launch>
+    <arg name="cfg_file" default="$(find odometry_calculate)/cfg/transform.yaml" />
+
+    <node name="log_odom" pkg="odometry_calculate" type="log_odom.py" output="screen">
+        <rosparam file="$(arg cfg_file)" />
+    </node>
+</launch>

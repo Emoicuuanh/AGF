@@ -1,0 +1,42 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.5
+      Plane Cell Count: 20
+      Reference Frame: <Fixed Frame>
+    - Class: rviz/RobotModel
+      Name: AGF
+      Enabled: true
+      Robot Description: robot_description
+      Alpha: 0.5
+    - Class: rviz/LaserScan
+      Name: VerticalScan
+      Enabled: true
+      Topic: /lidar_vertical/scan
+      Size (m): 0.02
+      Style: Flat Squares
+      Color Transformer: FlatColor
+      Color: 200; 60; 80
+    - Class: rviz/MarkerArray
+      Name: ClearanceField
+      Enabled: true
+      Marker Topic: /clearance_field/markers
+  Global Options:
+    Fixed Frame: world
+    Frame Rate: 30
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 5.5
+      Focal Point:
+        X: 1.3
+        Y: 0
+        Z: 1
+      Pitch: 0.05
+      Yaw: 4.712389

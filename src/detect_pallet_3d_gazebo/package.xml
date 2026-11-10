@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>detect_pallet_3d_gazebo</name>
+  <version>0.1.0</version>
+  <description>
+    Gazebo (classic 11, ROS Noetic) test bench for the Livox pallet detectors of detect_pallet_3d:
+    a base_link rig with a Livox MID-360-like 3D LiDAR on a configurable mount (incl. roll / pitch),
+    a pallet model, and an evaluator that scores pallet_front_frame / pallet_edge_frame in base_link
+    against the pallet's true pose. run_tilt_matrix.sh checks that a tilted mount gives the same
+    detection as the flat one.
+  </description>
+  <maintainer email="damquockhanh9@gmail.com">Khanh</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>detect_pallet_3d</exec_depend>
+  <exec_depend>amr_config</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>gazebo_msgs</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>rviz</exec_depend>
+</package>

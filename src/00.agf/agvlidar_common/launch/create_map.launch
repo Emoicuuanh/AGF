@@ -1,0 +1,13 @@
+<launch>
+	<!-- rosnode kill /map_to_odom_tf then run gmapping -->
+	<node pkg="gmapping" name="gmapping" type="slam_gmapping">
+		<!-- TODO: Check lại xem base_frame là laser hay lidar_nav350 hay front_mount... -->
+		<remap from="base_frame" to="laser" />
+		<remap from="scan" to="scan_map" />
+		<!-- initial map size, size will change when mapping automatically -->
+		<param name="xmin" value="-5" />
+		<param name="ymin" value="-5" />
+		<param name="xmax" value="5" />
+		<param name="ymax" value="5" />
+	</node>
+</launch>

@@ -1,0 +1,5 @@
+.vscode
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+*.code-workspace
+.obj-x86_64-linux-gnu/

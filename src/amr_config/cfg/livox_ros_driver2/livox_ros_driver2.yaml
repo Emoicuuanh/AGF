@@ -1,0 +1,10 @@
+xfer_format: 0
+multi_topic: 0
+data_src: 0
+publish_freq: 10.0
+output_data_type: 0
+cmdline_file_path: "livox_test.lvx"
+user_config_path: "$(find amr_config)/cfg/livox_ros_driver2/MID360_config.json"  # rviz_MID360s.launch overrides it with MID360s_config.json
+frame_id: "livox_frame"
+enable_lidar_bag: true
+enable_imu_bag: true

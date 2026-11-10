@@ -1,0 +1,30 @@
+---
+- name: Install base tools
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - cmake
+      - git
+      - curl
+      - wget
+      - gnupg
+      - ca-certificates
+      - lsb-release
+      - software-properties-common
+      - pkg-config
+      - rsync
+      - unzip
+      - net-tools
+      - iputils-ping
+      - openssh-server
+      - htop
+      - nano
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create folder for source builds
+  ansible.builtin.file:
+    path: "{{ src_build_dir }}"
+    state: directory
+    mode: "0755"

@@ -1,0 +1,18 @@
+encoder_resolution: 25000
+gear_reduction: 1.0
+
+wheel_radius: 0.075
+wheel_separation: 0.523
+
+laser_1_x: 0.41054
+laser_1_y: 0.29594
+laser_1_z: 0.13532
+laser_1_yaw: 0.845
+laser_1_pitch: 0
+laser_1_roll: 3.1415
+laser_2_x: -0.41054
+laser_2_y: -0.29594
+laser_2_z: 0.13532
+laser_2_yaw: -2.33
+laser_2_pitch: 0
+laser_2_roll: 3.1415

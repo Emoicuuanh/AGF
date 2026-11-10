@@ -1,0 +1,82 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.5
+      Plane Cell Count: 10
+    - Class: rviz/RobotModel
+      Name: RobotModel
+      Enabled: true
+      Robot Description: robot_description
+    - Class: rviz/TF
+      Name: TF
+      Enabled: true
+      Show Arrows: false
+      Show Names: true
+      Marker Scale: 0.5
+      Frames:
+        All Enabled: false
+        base_link:
+          Value: true
+        livox_frame:
+          Value: true
+        pallet_front_frame:
+          Value: true
+        pallet_edge_frame:
+          Value: true
+    - Class: rviz/PointCloud2
+      Name: livox raw
+      Enabled: true
+      Topic: /livox/lidar
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 180; 180; 180
+      Queue Size: 2
+    - Class: rviz/PointCloud2
+      Name: center front plane
+      Enabled: true
+      Topic: /livox/pallet_front_cloud1
+      Style: Points
+      Size (Pixels): 4
+      Color Transformer: FlatColor
+      Color: 0; 255; 0
+      Queue Size: 2
+    - Class: rviz/PointCloud2
+      Name: edge cluster
+      Enabled: true
+      Topic: /livox/edge_cluster1
+      Style: Points
+      Size (Pixels): 4
+      Color Transformer: FlatColor
+      Color: 255; 120; 0
+      Queue Size: 2
+    - Class: rviz/Marker
+      Name: front line
+      Enabled: true
+      Marker Topic: /livox/front_line_marker
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: base_link
+    Frame Rate: 30
+  Tools:
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 4.0
+      Focal Point:
+        X: -1.0
+        Y: 0.0
+        Z: 0.2
+      Pitch: 0.6
+      Yaw: 0.8
+Window Geometry:
+  Height: 900
+  Width: 1400

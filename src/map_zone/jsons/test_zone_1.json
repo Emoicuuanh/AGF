@@ -1,0 +1,67 @@
+{
+    "_id": {
+      "$oid": "677ca72cc6b1d7bcd45cde1b"
+    },
+    "name": "test1",
+    "desc": "",
+    "zones": {
+      "1": {
+        "type_zone": "RESTRICTED_ZONE",
+        "polygon": [
+          {
+            "x": -6,
+            "y": 9
+          },
+          {
+            "x": -1,
+            "y": 9
+          },
+          {
+            "x": 0,
+            "y": 2
+          },
+          {
+            "x": -7,
+            "y": 2
+          }
+        ],
+        "properties": {
+          "Safety": "Enable",
+          "Led": "Enable",
+          "Sound": "Enable",
+          "Velocy": 0.5
+        }
+      },
+      "2": {
+        "type_zone": "CHARGE_ZONE",
+        "polygon": [
+          {
+            "x": -3.5,
+            "y": 5
+          },
+          {
+            "x": -1,
+            "y": 3
+          },
+          {
+            "x": -1,
+            "y": -1
+          },
+          {
+            "x": -6,
+            "y": -1
+          },
+          {
+            "x": -6,
+            "y": 3
+          }
+        ],
+        "properties": {
+          "Safety": "Disable",
+          "Led": "Enable",
+          "Sound": "Disable",
+          "Velocy": 0.2
+        }
+      }
+    }
+  }

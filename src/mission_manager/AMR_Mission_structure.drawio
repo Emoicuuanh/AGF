@@ -1,0 +1,37 @@
+<mxfile host="app.diagrams.net" modified="2021-06-28T08:47:29.837Z" agent="5.0 (X11)" etag="etqhcy0ezjAvVeM6M7mf" version="14.7.1" type="gitlab">
+  <diagram id="iLxkMgSsrg04cOIXLZSt" name="Page-1">
+    <mxGraphModel dx="813" dy="508" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="QK1XqREULdLf8pVGG7sr-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" edge="1" parent="1" source="QgyxieaC4wQUJgfBG1w2-1" target="QK1XqREULdLf8pVGG7sr-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QK1XqREULdLf8pVGG7sr-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=none;startFill=0;" edge="1" parent="1" source="QgyxieaC4wQUJgfBG1w2-1" target="QK1XqREULdLf8pVGG7sr-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QgyxieaC4wQUJgfBG1w2-1" value="GUI" style="ellipse;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;align=center;strokeColor=#000000;fillColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="40" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QK1XqREULdLf8pVGG7sr-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;" edge="1" parent="1" source="QgyxieaC4wQUJgfBG1w2-2" target="QgyxieaC4wQUJgfBG1w2-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QgyxieaC4wQUJgfBG1w2-2" value="&lt;div&gt;Mission manager&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;align=center;strokeColor=#000000;fillColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="390" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QgyxieaC4wQUJgfBG1w2-3" value="Robot" style="ellipse;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;align=center;strokeColor=#000000;fillColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="600" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QK1XqREULdLf8pVGG7sr-1" value="&lt;div&gt;Database&lt;/div&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="45" y="300" width="110" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QK1XqREULdLf8pVGG7sr-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;" edge="1" parent="1" source="QK1XqREULdLf8pVGG7sr-5" target="QgyxieaC4wQUJgfBG1w2-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QK1XqREULdLf8pVGG7sr-5" value="mission &amp;lt;.json&amp;gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;rounded=0;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="220" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

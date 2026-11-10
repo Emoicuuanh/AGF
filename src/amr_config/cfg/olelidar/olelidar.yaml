@@ -1,0 +1,22 @@
+# One block per decoder node (key = node name)
+olelidar_decoder_1:
+  frame_id: "laser_1"
+  r_max: 50
+  ang_start: -180
+  ang_end: 180
+  inverted: false
+  device_ip: "192.168.0.90"
+  device_port: 2368
+  local_ip: "192.168.0.10"
+  multiaddr: ""
+
+olelidar_decoder_2:
+  frame_id: "laser_2"
+  r_max: 50
+  ang_start: -180
+  ang_end: 180
+  inverted: false
+  device_ip: "192.168.0.91"
+  device_port: 2369
+  local_ip: "192.168.0.10"
+  multiaddr: ""

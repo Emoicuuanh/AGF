@@ -1,0 +1,19 @@
+# Managed by Ansible (roles/mongodb)
+storage:
+  dbPath: /var/lib/mongodb
+{% if mongodb_series is version('6.1', '<') %}
+  journal:
+    enabled: true
+{% endif %}
+
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongod.log
+
+net:
+  port: 27017
+  bindIp: {{ mongodb_bind_ip }}
+
+processManagement:
+  timeZoneInfo: /usr/share/zoneinfo

@@ -1,0 +1,4 @@
+<launch>
+  <param name="config_file" value="/home/mkac/Desktop/config.yaml"/>
+  <node name="sensorAPI" pkg="sensorAPI" type="client.py" output="screen"/>
+</launch>

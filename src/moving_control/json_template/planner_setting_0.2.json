@@ -1,0 +1,7 @@
+{
+  "name": "Change setting for next actions",
+  "params": {
+    "desired_speed": 0.2
+  },
+  "type": "planner_setting"
+}

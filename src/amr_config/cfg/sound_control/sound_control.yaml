@@ -1,0 +1,8 @@
+sound_status: {
+  EMG: EMG,
+  PAUSED: EMG,
+  BATTERY_LOW: EMG,
+  BATTERY_EMPTY: EMG,
+  FATAL_ERROR: EMG,
+  GENERAL_ERROR: EMG,
+}

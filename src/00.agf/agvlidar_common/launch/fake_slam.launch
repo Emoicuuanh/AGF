@@ -1,0 +1,21 @@
+<launch>
+	<arg name="map_file" default="CCL" />
+	<arg name="subfix" default="py" />
+	<arg name="simulation" default="false" />
+
+	<group if="$(arg simulation)">
+		<node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen"
+			args="1.5 -0.2 0 3.141592 0 0 /map /odom 100" />
+	</group>
+
+	<node name="fake_slam" pkg="agvlidar_common" type="fake_slam.$(arg subfix)" output="screen">
+		<param name="map_file" value="$(arg map_file)" />
+	</node>
+
+	<!-- Map server -->
+	<!-- <node pkg="map_server" name="map_server" type="map_server"
+		args="$(find amr_config)/maps/$(arg map_file).yaml">
+		<remap if="$(arg simulation)" from="scan" to="scan_map" />
+	</node> -->
+
+</launch>

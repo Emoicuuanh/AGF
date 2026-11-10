@@ -1,0 +1,6 @@
+num_read_registers: 45
+num_write_register: 30
+address_read_start: 1000
+address_write_start: 1500
+ip: "192.168.0.101"
+port: 502

@@ -1,0 +1,12 @@
+int8 pin
+bool value
+# If duration_latch > 0 and duration_blink = 0, the output latch n (ms) then
+# set to set the opposite value (True to False and False to True)
+int64 duration_latch_ms
+# If duration_blink > 0 and duration_latch = 0, the output toggle with
+# duration = duration_latch (ms)
+int64 duration_blink_ms
+---
+# 0: NG
+# 1: OK
+bool result

@@ -1,0 +1,17 @@
+<launch>
+	<!-- Arguments -->
+	<arg name="simulation" default="false" />
+	<arg if="$(arg simulation)" name="simulation_str" default="-s" />
+	<arg unless="$(arg simulation)" name="simulation_str" default="" />
+	<arg name="subfix" default="py" />
+
+	<!-- If /use_sim_time = false: mrpt and move_base cannot launch same time with other node in
+	simulation -->
+	<param if="$(arg simulation)" name="/use_sim_time" value="true" />
+	<param unless="$(arg simulation)" name="/use_sim_time" value="false" />
+
+	<node name="control_system" pkg="control_system" type="control_system.$(arg subfix)"
+		output="screen"
+		args="$(arg simulation_str) --robot_config_file $(find amr_config)/cfg/control_system/robot_config.yaml" />
+
+</launch>

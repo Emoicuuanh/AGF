@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!--
+  Livox test rig: base_link (= the AGF base_link, on the floor) + a Livox MID-360-like 3D LiDAR.
+
+  Frames:
+    odom        published by the planar_move plugin (= world at spawn); drive with /cmd_vel
+    base_link   rig origin on the floor
+    livox_frame Livox mount, livox_x/y/z + livox_roll/pitch/yaw in base_link, same meaning and
+                defaults as pallet_tf_publisher.yaml (TF base_link -> livox_frame on the robot)
+
+  The sensor lives on base_link with the livox_joint pose; livox_frame is only a TF frame
+  (lumped by the fixed joint), as in agf_clearance_field_gazebo.
+  No collision geometry: the rays must not hit the rig, gravity is off (planar motion only).
+
+  MID-360: 360 deg horizontal, -7 .. 52 deg vertical, 0.1 m min range. The real scan pattern is
+  non-repetitive; here it is a regular h_samples x v_samples grid (gazebo_ros_block_laser,
+  sensor_msgs/PointCloud -> block_laser_to_cloud2.py -> /livox/lidar PointCloud2).
+-->
+<robot name="livox_rig" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="livox_x"     default="-0.255"/>
+  <xacro:arg name="livox_y"     default="0.43"/>
+  <xacro:arg name="livox_z"     default="0.08"/>
+  <xacro:arg name="livox_roll"  default="0.0"/>
+  <xacro:arg name="livox_pitch" default="0.3491"/>
+  <xacro:arg name="livox_yaw"   default="3.135"/>
+  <xacro:arg name="h_samples"   default="720"/>   <!-- 0.5 deg -->
+  <xacro:arg name="v_samples"   default="60"/>    <!-- ~1 deg -->
+  <xacro:arg name="max_range"   default="20.0"/>
+  <xacro:arg name="range_noise" default="0.002"/> <!-- m, std -->
+
+  <material name="rig_grey"><color rgba="0.5 0.5 0.5 1"/></material>
+  <material name="livox_blue"><color rgba="0.1 0.3 0.8 1"/></material>
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0.02"/>
+      <mass value="20.0"/>
+      <inertia ixx="0.3" ixy="0" ixz="0" iyy="0.3" iyz="0" izz="0.3"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.13 0.2 0.02"/>
+      <geometry><box size="0.5 0.6 0.04"/></geometry>
+      <material name="rig_grey"/>
+    </visual>
+  </link>
+
+  <link name="livox_frame">
+    <inertial>
+      <mass value="0.3"/>
+      <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="1e-4"/>
+    </inertial>
+    <visual>
+      <geometry><cylinder radius="0.033" length="0.06"/></geometry>
+      <material name="livox_blue"/>
+    </visual>
+  </link>
+
+  <joint name="livox_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="livox_frame"/>
+    <origin xyz="$(arg livox_x) $(arg livox_y) $(arg livox_z)"
+            rpy="$(arg livox_roll) $(arg livox_pitch) $(arg livox_yaw)"/>
+  </joint>
+
+  <gazebo reference="base_link">
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="ray" name="livox">
+      <!-- same pose as livox_joint (URDF and SDF rpy are both fixed-axis X, Y, Z) -->
+      <pose>$(arg livox_x) $(arg livox_y) $(arg livox_z) $(arg livox_roll) $(arg livox_pitch) $(arg livox_yaw)</pose>
+      <visualize>false</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>$(arg h_samples)</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>$(arg v_samples)</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.1222</min_angle>
+            <max_angle>0.9076</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>$(arg max_range)</max>
+          <resolution>0.001</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>$(arg range_noise)</stddev>
+        </noise>
+      </ray>
+      <plugin name="livox_block_laser" filename="libgazebo_ros_block_laser.so">
+        <topicName>/livox/sim_points</topicName>
+        <frameName>livox_frame</frameName>
+        <updateRate>10</updateRate>
+        <gaussianNoise>0.0</gaussianNoise>
+        <hokuyoMinIntensity>0</hokuyoMinIntensity>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="planar_move" filename="libgazebo_ros_planar_move.so">
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometryRate>50.0</odometryRate>
+      <robotBaseFrame>base_link</robotBaseFrame>
+    </plugin>
+  </gazebo>
+</robot>

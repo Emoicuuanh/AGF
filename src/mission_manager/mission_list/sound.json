@@ -1,0 +1,23 @@
+{
+  "_id": {
+    "$oid": "615acfe130213646e7b07c39"
+  }, 
+  "actions": [
+    {
+      "name": "Play or Stop sound", 
+      "params": {
+        "loop": true, 
+        "play": true, 
+        "sound": {
+          "name": "abc", 
+          "volume": 100
+        }
+      }, 
+      "type": "sound"
+    }
+  ], 
+  "desc": "", 
+  "group": "Develop", 
+  "map": "office", 
+  "name": "Test sound"
+}

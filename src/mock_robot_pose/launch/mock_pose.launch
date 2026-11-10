@@ -1,0 +1,5 @@
+<launch>
+    <node name="mock_pose_publisher" pkg="mock_robot_pose" type="mock_pose_publisher.py" output="screen">
+        <rosparam command="load" file="$(find amr_config)/cfg/mock_robot_pose/mock_pose.yaml" />
+    </node>
+</launch>

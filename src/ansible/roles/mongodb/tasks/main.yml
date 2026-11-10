@@ -1,0 +1,75 @@
+---
+# MongoDB 5.0+ needs AVX on x86 and ARMv8.2-A ("atomics") on ARM.
+# Many industrial PCs (Celeron/Atom) and the Raspberry Pi 4 lack these, so fall back to 4.4.
+- name: Read CPU flags
+  ansible.builtin.command: grep -m1 -E '^(flags|Features)' /proc/cpuinfo
+  register: cpu_flags
+  changed_when: false
+
+- name: Choose MongoDB version
+  ansible.builtin.set_fact:
+    mongodb_series: >-
+      {{ mongodb_version if mongodb_version != 'auto'
+         else ('7.0' if (' avx ' in (cpu_flags.stdout ~ ' ') or ' atomics ' in (cpu_flags.stdout ~ ' ')) else '4.4') }}
+
+- name: Show chosen MongoDB version
+  ansible.builtin.debug:
+    msg: "Installing MongoDB {{ mongodb_series }}"
+
+- name: Add MongoDB apt key
+  ansible.builtin.get_url:
+    url: "https://pgp.mongodb.com/server-{{ mongodb_series }}.asc"
+    dest: "/usr/share/keyrings/mongodb-server-{{ mongodb_series }}.asc"
+    mode: "0644"
+
+- name: Add MongoDB apt repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-{{ mongodb_series }}.asc]
+      https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/{{ mongodb_series }} multiverse
+    filename: "mongodb-org-{{ mongodb_series }}"
+    state: present
+
+- name: Install MongoDB server
+  ansible.builtin.apt:
+    name: mongodb-org
+    state: present
+    update_cache: true
+
+- name: Configure MongoDB
+  ansible.builtin.template:
+    src: mongod.conf.j2
+    dest: /etc/mongod.conf
+    mode: "0644"
+  notify: Restart mongod
+
+- name: Enable and start MongoDB
+  ansible.builtin.systemd:
+    name: mongod
+    enabled: true
+    state: started
+
+- name: Apply config changes before creating the user
+  ansible.builtin.meta: flush_handlers
+
+- name: Create application user ({{ mongodb_app_user }})
+  ansible.builtin.shell: |
+    python3 - <<'EOF'
+    import time
+    from pymongo import MongoClient
+    c = MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=30000)
+    for _ in range(30):
+        try:
+            c.admin.command("ping"); break
+        except Exception:
+            time.sleep(1)
+    if not c.admin.command("usersInfo", "{{ mongodb_app_user }}")["users"]:
+        c.admin.command("createUser", "{{ mongodb_app_user }}",
+                        pwd="{{ mongodb_app_password }}",
+                        roles=[{"role": "root", "db": "admin"}])
+        print("CREATED")
+    EOF
+  args:
+    executable: /bin/bash
+  register: mongo_user
+  changed_when: "'CREATED' in mongo_user.stdout"

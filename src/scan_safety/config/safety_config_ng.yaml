@@ -1,0 +1,29 @@
+scan_topic: '/scan'     # Scan to determine safety, detect obstacles
+scan_fov: 360           # Scan field of view
+
+# publish_vel: True       # publish or not safety velocity when detected obstacle
+# cmd_vel_input: '/auto_cmd_vel_mux/output'
+# cmd_vel_output: '/safety_cmd_vel'
+
+# Do not change those params below
+slice_size: 5
+min_ray: 3
+
+# footprint, scan safety will ignore obstacle with in this area
+footprint: '{"footprint":[[0.506,-0.32],[0.506,0.32],[-0.454,0.32],[-0.454,-0.32],[0.506,-0.32]]}'
+
+number_of_jobs: 3       # default: 4
+current_job: 1
+
+use_move_base: True
+
+# Ultrasonic sensor
+use_ultrasonic: True
+ultrasonic_topic: '/ultrasonic/ultrasonic_ranges'
+ultrasonic_min_range: 0.25
+ultrasonic_offset: 0.1
+ultrasonic_sensors:
+  front_left:  {index: 0, x_from_base_link: 0.472, x_direction: "positive"}   # in positive of base_link
+  front_right: {index: 1, x_from_base_link: 0.472, x_direction: "positive"}
+  rear_right:  {index: 2, x_from_base_link: -0.472, x_direction: "negative"}  # in negative of base_link
+  rear_left:   {index: 3, x_from_base_link: -0.472, x_direction: "negative"}

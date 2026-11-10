@@ -1,0 +1,86 @@
+input_fields:
+  odom_x: 0
+  odom_y: 2
+  odom_z: 4
+  odom_vel_x: 6
+  odom_vel_y: 8
+  odom_vel_z: 10
+  current_steer: 12
+  auto_manual_sw: 14
+  safety_top_job: 15
+  safety_top: 16
+  safety_right_job: 17
+  safety_right: 18
+  safety_left_job: 19
+  safety_left: 20
+  safety_front_job: 21
+  safety_front: 22
+  liftup_add: 23
+  emg_button: 24
+  plc_stt: 25
+  stop_1_button: 26
+  start_1_button: 27
+  # reset_button: 28 #TODO: make this error for lift encoder
+  detect_pallet_sw: 29
+  detect_pallet_sensor: 30
+  # lift_velocity: 32 #TODO: confirm fork angle
+  fork_sensor: 33
+  fork_control_angle_sensor: 34 # TODO: 1 (up) \ 2 (down) \ 3 (processing) \ 4 (error)
+  fork_control_distance_sensor: 35
+  parking_break_sensor: 36
+  safety_status: 37
+  control_olei_lidar_sensor: 38
+  confirm_lift: 39
+  confirm_homing: 40
+  break_status: 42
+  fork_clearance_detect: 45
+
+  encoder_move_fork_error: 44
+  confirm_fork_angle: 32
+  Encoder_liftup_error: 28
+
+  #TODO: add more input fields for AGF status, door open, safety AI, etc.
+  ros_lift_cmd: 50
+  ros_move_cmd: 51
+  ros_tilt_cmd: 52
+  ros_agf_status: 53
+  ros_door_open: 54
+  ros_safety_AI: 55
+  break_cmd: 56
+
+output_fields:
+  cmd_vel_with_acc_modbus_x: [0, 0]        # 1500, 1501
+  cmd_vel_with_acc_modbus_z: [0, 0]        # 1502, 1503
+  odom_modbus_x: [0, 0]                    # 1504, 1505
+  odom_modbus_y: [0, 0]                    # 1506, 1507
+  odom_modbus_z: [0, 0]                    # 1508, 1509
+  pallet_control: [1, 0]                   # 1510, 1511
+  keep_alive: [0]                          # 1512
+  safety_top: [0]                          # 1513
+  safety_right: [0]                         # 1514
+  safety_left: [0]                        # 1515
+  safety_front: [0]                        # 1516
+  break_control: [0]                       # 1517
+  operation_status: [0]                    # 1518
+  buzzer_control: [0]                      # 1519
+  reach_cmd: [0, 0]                        # 1520, 1521
+  safety_nav: [0]                          # 1522
+  fork_control_angle: [0]                  # 1523
+  fork_control_distance_1: [0]             # 1524
+  fork_control_distance_2: [0]             # 1525
+  robot_status: [1]                        # 1526
+  canon_door_sensor_safety: [1]            # 1527
+  disable_all_safety: [0]                  # 1528
+  olei_lidar_control: [0]                  # 1529
+  canon_AI_safety: [0]                     # 1530
+
+angular_z_smoothing:
+  tau: 0.15        # low-pass time constant [s], 0 = off
+  max_rate: 0.0    # max change of angular.z [rad/s per s], 0 = off
+
+calibration:
+  steering_offset: 0.07
+  side_fork_limit:
+    min: 0
+    max: 200
+    center: 100

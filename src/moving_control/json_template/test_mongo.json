@@ -1,0 +1,91 @@
+{
+  "name": "Move to position",
+  "params": {
+    "frame_id": "map",
+    "max_retry_time": 5.0,
+    "reconfigure": {
+      "xy_tolerance": 0.5
+    },
+    "run_as_viapoint": true
+  },
+  "waypoints": [
+    {
+      "_id": {
+        "$oid": "6117753f28236090489a557f"
+      },
+      "map": "mkac",
+      "name": "pose1",
+      "position": {
+        "display": {
+          "angle": 0.10618023049903917,
+          "x": -217.65582383038824,
+          "y": -18.595818317160706
+        },
+        "orientation": {
+          "w": 1,
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0
+        },
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 0.0
+        }
+      },
+      "type": "position"
+    },
+    {
+      "_id": {
+        "$oid": "6117753f28236090489a5580"
+      },
+      "map": "mkac",
+      "name": "pose2",
+      "position": {
+        "display": {
+          "angle": -1.5946013529799663,
+          "x": -160.03321196735317,
+          "y": -19.754494151716244
+        },
+        "orientation": {
+          "w": 1,
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0
+        },
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 0.0
+        }
+      },
+      "type": "position"
+    },
+    {
+      "_id": {
+        "$oid": "6117753f28236090489a5581"
+      },
+      "map": "mkac",
+      "name": "pose3",
+      "position": {
+        "display": {
+          "angle": -1.5707963267948966,
+          "x": -160.34446542606992,
+          "y": -70.60393343340832
+        },
+        "orientation": {
+          "w": 1,
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0
+        },
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 0.0
+        }
+      },
+      "type": "position"
+    }
+  ]
+}

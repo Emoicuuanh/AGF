@@ -1,0 +1,17 @@
+{
+  "name": "Charge 2",
+  "group": "move",
+  "actions":
+  [
+    {
+      "name": "move to charge 2",
+      "type": "move",
+      "params": {
+          "start": "Move",
+          "stop": "Charge_2",
+          "retries": 5,
+          "distance_threshold": 0.05
+      }
+    }
+  ]
+}

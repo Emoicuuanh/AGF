@@ -1,0 +1,322 @@
+<?xml version="1.0" ?>
+<robot name="agf_model" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find agf_gazebo_sim)/urdf/agf_model.gazebo" />
+
+<link name="base_footprint">
+</link>
+
+<link name="base_link">
+  <inertial>
+    <origin xyz="-0.1590670277457743 0.00043321336138561257 0.032927108584328624" rpy="0 0 0"/>
+    <mass value="9844.291569239287"/>
+    <inertia ixx="1878.724252" iyy="3289.400305" izz="2828.692491" ixy="-2.128949" iyz="-2.880575" ixz="142.095702"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-Body_Component2_v6__1__1">
+  <inertial>
+    <origin xyz="7.446187111348479e-09 0.00635363525379995 0.09397034881824085" rpy="0 0 0"/>
+    <mass value="13.49301039496102"/>
+    <inertia ixx="0.060319" iyy="0.054545" izz="0.021735" ixy="-0.0" iyz="0.005484" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.69 -0.35 0.435" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Body_Component2_v6__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.69 -0.35 0.435" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Body_Component2_v6__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-Body_Component2_v6_1">
+  <inertial>
+    <origin xyz="-7.446189220772226e-09 -0.006353635253800116 0.09397034881824012" rpy="0 0 0"/>
+    <mass value="13.49301039496102"/>
+    <inertia ixx="0.060319" iyy="0.054545" izz="0.021735" ixy="-0.0" iyz="-0.005484" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.69 0.35 0.435" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Body_Component2_v6_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.69 0.35 0.435" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Body_Component2_v6_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-FrontWheel_v4__1__1">
+  <inertial>
+    <origin xyz="-1.4432899320127035e-15 0.049680419169359114 6.661338147750939e-16" rpy="0 0 0"/>
+    <mass value="152.91049769249884"/>
+    <inertia ixx="2.089178" iyy="3.402154" izz="2.089178" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.69 -0.45 0.405" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-FrontWheel_v4__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="glossy_black"/>
+  </visual>
+  <collision>
+    <origin xyz="0.69 -0.45 0.405" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-FrontWheel_v4__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-FrontWheel_v4_1">
+  <inertial>
+    <origin xyz="-8.881784197001252e-16 -0.04968041916935867 -1.1102230246251565e-16" rpy="0 0 0"/>
+    <mass value="152.91049769249884"/>
+    <inertia ixx="2.089178" iyy="3.402154" izz="2.089178" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.69 0.45 0.405" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-FrontWheel_v4_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="glossy_black"/>
+  </visual>
+  <collision>
+    <origin xyz="0.69 0.45 0.405" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-FrontWheel_v4_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-BackWheel_v3__1__1">
+  <inertial>
+    <origin xyz="-3.3306690738754696e-16 0.22933028917787612 5.551115123125783e-17" rpy="0 0 0"/>
+    <mass value="242.11303230244326"/>
+    <inertia ixx="5.028043" iyy="8.672213" izz="5.028043" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.67 -0.25 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-BackWheel_v3__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="glossy_black"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.67 -0.25 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-BackWheel_v3__1__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-BackWheel_v3_1">
+  <inertial>
+    <origin xyz="0.0 -0.2293302891778755 -3.885780586188048e-16" rpy="0 0 0"/>
+    <mass value="242.11303230244326"/>
+    <inertia ixx="5.028043" iyy="8.672213" izz="5.028043" ixy="0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.67 0.25 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-BackWheel_v3_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="glossy_black"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.67 0.25 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-BackWheel_v3_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-Fork-Frame_v1_1">
+  <inertial>
+    <origin xyz="0.186257523945644 0.2480000000000001 0.6833263090205366" rpy="0 0 0"/>
+    <mass value="162.95118743035374"/>
+    <inertia ixx="80.641052" iyy="70.343591" izz="13.723212" ixy="-0.0" iyz="-0.0" ixz="-1.10387"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.67 0.25 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Frame_v1_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.67 0.25 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Frame_v1_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-Fork-Push-Frame_v7_1">
+  <inertial>
+    <origin xyz="-0.20393630603845692 -1.059676645243133 0.6000236758421733" rpy="0 0 0"/>
+    <mass value="114.97781552764667"/>
+    <inertia ixx="12.56263" iyy="12.690451" izz="17.251293" ixy="-0.007836" iyz="0.006903" ixz="3.094343"/>
+  </inertial>
+  <visual>
+    <origin xyz="-1.02 0.0 0.335" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Push-Frame_v7_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-1.02 0.0 0.335" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Push-Frame_v7_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-Fork-Lift-Frame_v1_1">
+  <inertial>
+    <origin xyz="-1.02 0.0 0.355" rpy="0 0 0"/>
+    <mass value="107.97357123307613"/>
+    <inertia ixx="47.176836" iyy="41.62649" izz="6.248952" ixy="-0.02409" iyz="0.19796" ixz="0.949416"/>
+  </inertial>
+  <visual>
+    <origin xyz="-1.02 0.0 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Lift-Frame_v1_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-1.02 0.0 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Lift-Frame_v1_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Untitled_FB15CA1-Fork-Up-Frame_v3_1">
+  <inertial>
+    <origin xyz="-1.02 0.0 0.355" rpy="0 0 0"/>
+    <mass value="49.80945430587165"/>
+    <inertia ixx="4.380869" iyy="1.131064" izz="3.396584" ixy="0.000419" iyz="0.004097" ixz="-0.015901"/>
+  </inertial>
+  <visual>
+    <origin xyz="-1.02 0.0 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Up-Frame_v3_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-1.02 0.0 0.355" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find agf_gazebo_sim)/meshes/Untitled_FB15CA1-Fork-Up-Frame_v3_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="rigid 1" type="fixed">
+  <origin xyz="0.0 0.0 0.6" rpy="0 0 0"/>
+  <parent link="base_footprint"/>
+  <child link="base_link"/>
+  <axis xyz="0.0 0.0 1.0"/>
+</joint>
+
+<joint name="left_steering_joint" type="revolute">
+  <origin xyz="-0.69 0.35 -0.435" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Untitled_FB15CA1-Body_Component2_v6__1__1"/>
+  <axis xyz="0.0 0.0 1.0"/>
+  <limit lower="-0.5236" upper="0.5236" effort="100" velocity="1.0"/>
+</joint>
+
+<joint name="right_steering_joint" type="revolute">
+  <origin xyz="-0.69 -0.35 -0.435" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Untitled_FB15CA1-Body_Component2_v6_1"/>
+  <axis xyz="0.0 0.0 1.0"/>
+  <limit lower="-0.5236" upper="0.5236" effort="100" velocity="1.0"/>
+</joint>
+
+<joint name="right_wheel_joint" type="continuous">
+  <origin xyz="0.0 0.1 0.03" rpy="0 0 0"/>
+  <parent link="Untitled_FB15CA1-Body_Component2_v6__1__1"/>
+  <child link="Untitled_FB15CA1-FrontWheel_v4__1__1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+</joint>
+
+<joint name="left_wheel_joint" type="continuous">
+  <origin xyz="0.0 -0.1 0.03" rpy="0 0 0"/>
+  <parent link="Untitled_FB15CA1-Body_Component2_v6_1"/>
+  <child link="Untitled_FB15CA1-FrontWheel_v4_1"/>
+  <axis xyz="0.0 -1.0 0.0"/>
+</joint>
+
+<joint name="left_back_wheel_joint" type="continuous">
+  <origin xyz="0.67 0.25 -0.355" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Untitled_FB15CA1-BackWheel_v3__1__1"/>
+  <axis xyz="-0.0 1.0 0.0"/>
+</joint>
+
+<joint name="right_back_wheel_joint" type="continuous">
+  <origin xyz="0.67 -0.25 -0.355" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Untitled_FB15CA1-BackWheel_v3_1"/>
+  <axis xyz="0.0 -1.0 -0.0"/>
+</joint>
+
+<joint name="Revolute 18" type="continuous">
+  <origin xyz="0.67 -0.25 -0.355" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Untitled_FB15CA1-Fork-Frame_v1_1"/>
+  <axis xyz="0.0 -1.0 -0.0"/>
+</joint>
+
+<joint name="Slider 21" type="prismatic">
+  <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  <parent link="Untitled_FB15CA1-Fork-Up-Frame_v3_1"/>
+  <child link="Untitled_FB15CA1-Fork-Push-Frame_v7_1"/>
+  <axis xyz="-0.0 1.0 -0.0"/>
+  <limit upper="0.0" lower="0.0" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Slider 22" type="prismatic">
+  <origin xyz="0.35 0.25 0.0" rpy="0 0 0"/>
+  <parent link="Untitled_FB15CA1-Fork-Frame_v1_1"/>
+  <child link="Untitled_FB15CA1-Fork-Lift-Frame_v1_1"/>
+  <axis xyz="0.0 0.0 -1.0"/>
+  <limit upper="0.0" lower="0.0" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Slider 23" type="prismatic">
+  <origin xyz="0.00 0.00 0.0" rpy="0 0 0"/>
+  <parent link="Untitled_FB15CA1-Fork-Lift-Frame_v1_1"/>
+  <child link="Untitled_FB15CA1-Fork-Up-Frame_v3_1"/>
+  <axis xyz="0.0 0.0 -1.0"/>
+  <limit upper="0.0" lower="0.0" effort="100" velocity="100"/>
+</joint>
+
+</robot>

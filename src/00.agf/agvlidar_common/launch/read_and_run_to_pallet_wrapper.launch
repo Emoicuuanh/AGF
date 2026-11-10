@@ -1,0 +1,9 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<node pkg="picking_pallet" name="read_and_run_to_pallet_wrapper"
+		type="read_and_run_to_pallet_wrapper.py"
+		output="screen">
+		<rosparam command="load" file="$(find amr_config)/cfg/picking_pallet/tf.yaml" />
+	</node>
+</launch>

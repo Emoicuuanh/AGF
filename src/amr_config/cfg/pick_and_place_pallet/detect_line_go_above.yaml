@@ -1,0 +1,22 @@
+scan1_name: "/scan_1"
+scan1_frame: "laser_1"
+frame_robot: "laser_2"
+frame_pallet: "tf_pallet_1"
+frame_line_go: "tf_line_go_1"
+
+use_detect_line_go: true
+dis_filter_middle_point: 0.15
+max_distance_point_to_line: 0.03
+min_size_path: 20
+max_distance_scan: 4.0
+min_distance_scan: 0.07
+lenght_of_pallet: 1.07
+max_diff_lenght: 0.008
+max_diff_create_path: 0.03
+
+
+use_3d: true
+frame_line_go_3d: "tf_line_go_1_3d"
+
+# pallet_front_frame = pallet on the floor (picking) -> motion-compensate through odom
+fixed_frame: "odom"

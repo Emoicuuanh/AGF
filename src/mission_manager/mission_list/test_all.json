@@ -1,0 +1,298 @@
+{
+  "_id": {
+    "$oid": "61387f2fc65d9d0601df8cbb"
+  }, 
+  "actions": [
+    {
+      "name": "Check position status", 
+      "params": {
+        "desired": false, 
+        "position": {
+          "display": {
+            "angle": 1.603737746597441, 
+            "x": 85.38297476564179, 
+            "y": -79.1359844693277
+          }, 
+          "orientation": {
+            "w": 0.6953648328781128, 
+            "x": 0.0, 
+            "y": 0.0, 
+            "z": 0.7186568975448608
+          }, 
+          "position": {
+            "x": 4.269148801897363, 
+            "y": -3.956799282427288, 
+            "z": 0.0
+          }
+        }, 
+        "timeout": 0.5
+      }, 
+      "type": "check_position_status"
+    }, 
+    {
+      "name": "Change setting for next actions", 
+      "params": {
+        "desired_speed": 0.6
+      }, 
+      "type": "planner_setting"
+    }, 
+    {
+      "name": "Relative moving", 
+      "params": {
+        "angle": 0.0, 
+        "max_angular_vel": 0.5, 
+        "max_linear_vel": 0.5, 
+        "x": 1.0, 
+        "y": 1.0
+      }, 
+      "type": "relative_move"
+    }, 
+    {
+      "name": "Set footprint", 
+      "params": {
+        "footprint": [
+          [
+            -0.575, 
+            -0.44999999999999996
+          ], 
+          [
+            -0.575, 
+            0.44999999999999996
+          ], 
+          [
+            0.575, 
+            0.44999999999999996
+          ], 
+          [
+            0.575, 
+            -0.44999999999999996
+          ]
+        ]
+      }, 
+      "type": "set_footprint"
+    }, 
+    {
+      "name": "Docking to marker position", 
+      "params": {
+        "marker": {
+          "marker": [
+            {
+              "params": [
+                {
+                  "name": "x_offset", 
+                  "value": 0.1
+                }, 
+                {
+                  "name": "y_offset", 
+                  "value": 0.0
+                }
+              ], 
+              "type": "vl-marker"
+            }
+          ], 
+          "position": {
+            "display": {
+              "angle": 0.0, 
+              "x": 59.99999910593034, 
+              "y": 0.0
+            }, 
+            "orientation": {
+              "w": 1.0, 
+              "x": 0.0, 
+              "y": 0.0, 
+              "z": 0.0
+            }, 
+            "position": {
+              "x": 3.0, 
+              "y": 0.0, 
+              "z": 0.0
+            }
+          }
+        }
+      }, 
+      "type": "docking"
+    }, 
+    {
+      "name": "Charging process", 
+      "params": {
+        "minimum_percentage": 1.0, 
+        "minimum_time": 1.0
+      }, 
+      "type": "charging"
+    }, 
+    {
+      "name": "Place shelf", 
+      "params": {
+        "marker": {
+          "marker": [
+            {
+              "params": [
+                {
+                  "name": "x_offset", 
+                  "value": 0.5
+                }, 
+                {
+                  "name": "y_offset", 
+                  "value": 0.2
+                }
+              ], 
+              "type": "vl-marker"
+            }
+          ], 
+          "position": {
+            "display": {
+              "angle": 0.0, 
+              "x": 19.99999970197678, 
+              "y": 0.0
+            }, 
+            "orientation": {
+              "w": 1.0, 
+              "x": 0.0, 
+              "y": 0.0, 
+              "z": 0.0
+            }, 
+            "position": {
+              "x": 1.0, 
+              "y": 0.0, 
+              "z": 0.0
+            }
+          }
+        }, 
+        "out_distance": 1.5
+      }, 
+      "type": "place_shelf"
+    }, 
+    {
+      "name": "Pick up shelf", 
+      "params": {
+        "footprint": [
+          [
+            -0.575, 
+            -0.44999999999999996
+          ], 
+          [
+            -0.575, 
+            0.44999999999999996
+          ], 
+          [
+            0.575, 
+            0.44999999999999996
+          ], 
+          [
+            0.575, 
+            -0.44999999999999996
+          ]
+        ], 
+        "marker": {
+          "marker": [
+            {
+              "params": [
+                {
+                  "name": "x_offset", 
+                  "value": 0.5
+                }, 
+                {
+                  "name": "y_offset", 
+                  "value": 0.2
+                }
+              ], 
+              "type": "vl-marker"
+            }
+          ], 
+          "position": {
+            "display": {
+              "angle": 0.0, 
+              "x": 19.99999970197678, 
+              "y": 0.0
+            }, 
+            "orientation": {
+              "w": 1.0, 
+              "x": 0.0, 
+              "y": 0.0, 
+              "z": 0.0
+            }, 
+            "position": {
+              "x": 1.0, 
+              "y": 0.0, 
+              "z": 0.0
+            }
+          }
+        }, 
+        "out_distance": 1.5, 
+        "safety": [
+          {
+            "data": [
+              [
+                -2.0, 
+                2.0
+              ], 
+              [
+                2.0, 
+                2.0
+              ], 
+              [
+                2.0, 
+                -2.0
+              ], 
+              [
+                -2.0, 
+                -2.0
+              ]
+            ], 
+            "index": 0
+          }, 
+          {
+            "data": [], 
+            "index": 1
+          }, 
+          {
+            "data": [], 
+            "index": 2
+          }
+        ]
+      }, 
+      "type": "pick_up_shelf"
+    }, 
+    {
+      "name": "Set Safety Job", 
+      "params": {
+        "safety": [
+          {
+            "data": [
+              [
+                -2.0, 
+                2.0
+              ], 
+              [
+                2.0, 
+                2.0
+              ], 
+              [
+                2.0, 
+                -2.0
+              ], 
+              [
+                -2.0, 
+                -2.0
+              ]
+            ], 
+            "index": 0
+          }, 
+          {
+            "data": [], 
+            "index": 1
+          }, 
+          {
+            "data": [], 
+            "index": 2
+          }
+        ]
+      }, 
+      "type": "set_safety_job"
+    }
+  ], 
+  "desc": "", 
+  "group": "Develop", 
+  "map": "9", 
+  "name": "All test"
+}

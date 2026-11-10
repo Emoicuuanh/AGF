@@ -1,0 +1,22 @@
+<launch>
+      <arg name="db_path" default="$(find agvlidar_data_model)/db/"/>
+      <arg name="db_file" default="agvlidar"/>
+      <arg name="simulation" default="false" />
+      <node pkg="mission_manager" name="check_position_status" type="check_position_server.py"/>
+
+      <!-- <node pkg="auto_docking" name="marker_docking"
+            type="marker_docking.py"
+            args="$(arg simulation)"/>
+
+      <node pkg="auto_docking" name="auto_charging"
+            type="" -->
+
+      <!-- <node pkg="mission_manager" name="mission_server"
+            type="mission_server_topic.py"
+            args="agvlidar_data_model
+                  scripts
+                  /set_waypoint
+                  $(arg db_path)$(arg "db_file).db"
+            output="screen"/> -->
+      <node pkg="mission_manager" name="mission_server" type="mission_server.py" output="screen" />
+</launch>

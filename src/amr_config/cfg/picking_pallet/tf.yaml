@@ -1,0 +1,6 @@
+pose_cam_x_to_center: 0.0
+pose_cam_y_to_center: 0.0
+pose_cam_z_to_center: -0.73 # Khoảng cach z transform từ Cam đến base_link, không quan tâm đến góc
+angle_roll_cam_to_center: -0.262 # rx, gật lên xuống
+angle_pitch_cam_to_center: -0.02 # ry, lắc trái phái
+calib_y: 2.45 # tính ra diff_y = translation.z / khoảng cách thực tế từ Cam đến Aruco (2.965/1.21)

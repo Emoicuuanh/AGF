@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="slam_manager" type="slam_manager_map_to_img_node" name="map_to_img" output="screen">
+        <rosparam command="load" file="$(find amr_config)/cfg/slam_manager/map_to_img.yaml" />
+    </node>
+
+</launch>

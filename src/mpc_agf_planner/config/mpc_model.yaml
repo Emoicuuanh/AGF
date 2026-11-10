@@ -1,0 +1,37 @@
+# MPC robot model for mpc_agf_planner.
+# PLACEHOLDER VALUES: replace with the output of
+#   rosrun mpc_agf_planner identify_model.py model_id.bag --track-width 1.2 --out mpc_model.yaml
+# Load into the planner's namespace, e.g.
+#   rosparam load mpc_model.yaml /move_base/MpcAgfPlannerROS
+wheelbase: 1.28          # m, fixed axle to steered wheel
+steer_sign: 1.0         # +1: positive angular.z turns left when driving forward
+tau_steer: 0.8          # s, steering motor time constant
+max_steer_rate: 0.5     # rad/s, steering motor rate limit
+max_angular_z: 2.0
+delay: 0.15              # s, command-to-motion latency
+steer_track_width: 0.8  # m, distance between the two steering pivots (Ackermann).
+                        # /steering_angle and the command are the left wheel's
+                        # angle; 0 would treat them as the centre angle.
+ref_point_offset: 0.0   # m, base_link to fixed-axle midpoint, forward positive
+
+# MPC tuning (from dynparam dump). All live in rqt_reconfigure; dump again
+# with `rosrun dynamic_reconfigure dynparam dump /move_base/MpcAgfPlannerROS f.yaml`.
+# Cost weights: higher = that term matters more relative to the others.
+q_ey: 40              # Lateral error. Raise to hold the path harder; too high = weaving
+q_epsi: 6            # Heading error. Raise to damp weaving and align the heading sooner
+r_steer: 0.5            # Steering away from what the path curvature needs. Lower = more
+                        # aggressive corrections, higher = leans on the curvature feedforward
+r_dsteer: 1.0           # Steering change per step. Raise for smoother steering, lower for
+                        # quicker response (too low = chatter)
+qf_scale: 10            # Multiplier on the errors at the end of the horizon. Raise if it
+                        # overshoots where the path ends or bends sharply
+
+# Speed profile, applied from the next goal
+a_lat_max: 0.15         # m/s^2, curve speed limit v <= sqrt(a_lat_max * radius). Lower = slower in curves
+a_dec: 0.5              # m/s^2, planned braking toward the goal. Lower = starts braking earlier
+v_creep_min: 0.1        # m/s, speed over the last stretch before the goal
+creep_dist: 0.3         # m, stretch before the goal tolerance driven at v_creep_min
+
+# Stopping, applied immediately
+stop_lead_time: 0.8     # s, stop is sent speed * this before the goal to cover the coast-down.
+                        # Raise if it stops past the goal, lower if it stops short

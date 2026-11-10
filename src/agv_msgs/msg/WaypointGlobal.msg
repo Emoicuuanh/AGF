@@ -1,0 +1,2 @@
+geometry_msgs/PoseStamped Pose
+float64 radius

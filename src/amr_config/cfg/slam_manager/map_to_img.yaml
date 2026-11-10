@@ -1,0 +1,7 @@
+tile_width: 736
+tile_height: 1280
+parent_frame: "map"
+child_frame: "base_link"
+draw_robot: true
+publish_full_map: true
+publish_map_tile: false

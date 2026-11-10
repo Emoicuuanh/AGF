@@ -1,0 +1,43 @@
+scan1_name: "/scan_2"
+scan1_frame: "laser_2"
+frame_robot: "laser_2"
+frame_pallet: "tf_pallet_2"
+tf_edge: "tf_edge_2"
+
+use_detect_pallet_normal: true
+publish_edge_pallet: true
+max_distance_point_to_line: 0.03
+min_size_path: 20
+max_distance_scan: 3.0
+min_distance_scan: 0.3
+lenght_of_pallet: 1.07
+max_diff_lenght: 0.02 #0.1
+max_diff_create_path: 0.05
+use_3d: false
+
+# ===== Output TF filter (tf_pallet_2 / tf_edge_2) =====
+# Gated constant-position Kalman filter smoothing before the TF is broadcast, so the
+# control loop (placing_pallet_server.py FINE_TUNE_APPROACH / SEND_GO_BACKWARD_UNTIL_REACH)
+# gets a stable input instead of raw per-scan jitter. See detect_object.h Pose2DFilter.
+# Tuned for faster tracking than the compiled-in defaults (pos q 1e-4, yaw q 1.22e-3,
+# max_rejects 5), which settled in ~6 scans (pos) / ~15 scans (yaw). Raise q for a
+# snappier TF, lower it for a smoother one. Set filter_enable: false to bypass and go
+# back to the raw per-scan pose (e.g. to compare behavior).
+filter_enable: true
+kf_process_noise_pos: 0.0002       # m^2/s, how fast the true pose is allowed to drift on its own (gain ~0.4 @10Hz)
+kf_measurement_noise_pos: 0.0004  # m^2, ~2cm std of a single line-fit position
+kf_process_noise_yaw: 0.03        # rad^2/s (gain ~0.3 @10Hz)
+kf_measurement_noise_yaw: 0.00274 # rad^2 (3 deg)^2
+# Extra noise per m the robot moved since the last scan, so the TF follows the line while
+# driving and is only smoothed hard when standing still. At 0.3 m/s, 10 Hz (3 cm/scan) this
+# gives a gain of ~0.8 (pos and yaw). 0 = off (old behavior).
+kf_motion_noise_pos: 0.05         # m^2 per m moved
+kf_motion_noise_yaw: 0.2          # rad^2 per m moved
+filter_gate_pos: 0.08            # m, reject jumps larger than this as outliers
+filter_gate_deg: 8.0              # deg
+filter_max_rejects: 2             # consecutive rejected jumps before trusting the new pose
+filter_reset_timeout: 1.0         # s without a detection before the filter re-initializes
+
+# The 2D filter runs in fixed_frame, where the bottom pallet is still (default "odom"),
+# and the result is re-expressed in frame_robot at the latest robot pose.
+fixed_frame: "odom"

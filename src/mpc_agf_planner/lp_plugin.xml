@@ -1,0 +1,16 @@
+<library path="lib/libmpc_agf_planner">
+    <class name="mpc_agf_planner/MpcAgfPlannerROS" type="mpc_agf_planner::MpcAgfPlannerROS"
+        base_class_type="nav_core::BaseLocalPlanner">
+        <description>
+            The mpc_agf_planner package implements a plugin
+            to the base_local_planner of the 2D navigation stack.
+        </description>
+    </class>
+
+    <class name="mpc_agf_planner::MpcAgfPlannerROS" type="mpc_agf_planner::MpcAgfPlannerROS"
+        base_class_type="mbf_costmap_core::CostmapController">
+        <description>
+            Same plugin implemented MBF CostmapController's extended interface.
+        </description>
+    </class>
+</library>

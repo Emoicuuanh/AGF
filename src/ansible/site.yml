@@ -1,0 +1,26 @@
+---
+# Install every dependency needed to build and run the AGF workspace
+# (ROS Noetic, Ubuntu 20.04). Run with: ansible-playbook site.yml -K
+- name: Provision AGF robot
+  hosts: all
+  become: true
+  pre_tasks:
+    - name: Check OS is Ubuntu 20.04 (ROS Noetic requirement)
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == "Ubuntu"
+          - ansible_distribution_version == "20.04"
+        fail_msg: "ROS Noetic needs Ubuntu 20.04, found {{ ansible_distribution }} {{ ansible_distribution_version }}"
+      tags: always
+
+  roles:
+    - { role: base,        tags: [base] }
+    - { role: ros_noetic,  tags: [ros] }
+    - { role: system_libs, tags: [libs] }
+    - { role: python_deps, tags: [python] }
+    - { role: mongodb,     tags: [mongodb],   when: install_mongodb | bool }
+    - { role: mongo_cxx,   tags: [mongocxx] }
+    - { role: mrpt,        tags: [mrpt] }
+    - { role: livox_sdk2,  tags: [livox] }
+    - { role: hardware,    tags: [hardware] }
+    - { role: workspace,   tags: [workspace] }

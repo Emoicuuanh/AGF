@@ -1,0 +1,106 @@
+# config/livox_edge_filter.yaml
+# Thời gian tích lũy điểm (giây)
+buffer_time: 0.25
+
+# Tần suất xuất bản (Hz)
+publish_rate: 100
+
+# Góc quét tối thiểu (độ)
+angle_min: -15.0
+
+# Góc quét tối đa (độ)
+angle_max: 60.0
+
+# Chiều cao tối đa (m)
+max_z: 0.3
+
+# Chiều cao tối thiểu (m)
+min_z: 0.0001
+
+# Khoảng cách tối đa theo trục X (m)
+max_x: 1.8 #0.8
+
+# Tham số DBSCAN: Khoảng cách tối đa giữa các điểm trong một cụm (m)
+dbscan_eps: 0.1  # Tăng từ 0.01 → dễ cluster
+
+# Tham số DBSCAN: Số điểm tối thiểu để hình thành một cụm
+dbscan_min_samples: 10  # Giảm từ 1500 → phù hợp pallet (~1000 điểm)
+
+# Kích thước voxel (m) để làm thưa đám mây trước DBSCAN (nhanh hơn nhiều); các mặt phẳng/cạnh vẫn
+# dùng điểm đầy đủ. 0 = tắt. Khi bật, dbscan_min_samples đếm số voxel thay vì số điểm.
+cluster_voxel: 0.02
+
+# Tham số RANSAC: Ngưỡng khoảng cách để điểm thuộc mặt phẳng (m)
+ransac_distance_threshold: 0.02
+
+# Tham số RANSAC: Số điểm tối thiểu để fit mặt phẳng
+ransac_n: 3  # Giảm từ 25 → nhanh và ổn định hơn
+
+# Tham số RANSAC: Số lần lặp
+ransac_iterations: 200  # Tăng từ 100 → chính xác hơn
+
+# Số điểm tối thiểu trên một mặt phẳng
+min_plane_points: 50
+
+# Số điểm tối thiểu trên một mặt phẳng canh
+side_plane_points: 100
+
+# Ngưỡng thành phần x của pháp tuyến cho mặt trước (gần vuông góc với Ox)
+normal_x_threshold: 0.5  # Giảm từ 0.7 → chấp nhận pallet hơi nghiêng
+
+# Ngưỡng tích vô hướng cho mặt phẳng cạnh (gần vuông góc với mặt trước)
+orthogonality_threshold: 0.3  # |front . side| <= 0.3 -> faces within ~17 deg of perpendicular (was 0.85: anything 32+ deg apart, up to 58 deg off perpendicular)
+
+# Độ dài tối thiểu của cạnh dọc mép thùng hàng (m)
+min_edge_length: 0.05
+
+# Độ dài tối đa của cạnh dọc mép thùng hàng (m)
+max_edge_length: 1.0
+
+# Delta để lọc điểm biên bên phải (m)
+edge_side_delta: 0.05
+
+# Số lần thử RANSAC tối đa để tìm mặt trước
+max_ransac_tries: 3
+
+# Gốc frame cạnh = điểm trên cạnh tại chiều cao cố định trong livox_frame (m, âm = dưới Livox),
+# thay vì điểm giữa phần cạnh nhìn thấy (bị lệch khi cạnh nghiêng). false -> dùng điểm giữa như cũ.
+edge_ref_enable: true
+edge_ref_z: -0.1
+
+# Bám cụm: khi đã có cạnh, chọn cụm chứa cạnh đó (khoảng cách x,y tối đa, m) thay vì chấm điểm lại mọi cụm
+track_radius: 0.15
+
+# Debug: phát TF pallet_edge_frame_raw (chưa lọc) và log mỗi lần phát hiện
+debug: true
+
+# Frame trong đó pallet đứng yên. Node này chỉ dùng khi đặt pallet (placing): Livox nhìn pallet
+# đang nằm trên càng, pallet di chuyển cùng xe -> đứng yên trong livox_frame, KHÔNG đứng yên trong odom.
+# Cửa sổ tích lũy, bộ lọc Kalman và bám cụm đều chạy trong frame này. Với odom, xe chạy làm pallet
+# bị nhòe (v * buffer_time) và trễ theo vận tốc/hướng chạy. Dùng odom chỉ khi mục tiêu nằm yên trên sàn.
+fixed_frame: base_link  # pallet on the forks is still in base_link even when the lidar cylinder moves the Livox (in livox_frame it jumps by distance_xylanh)
+
+# Bộ lọc Kalman đầu ra (lọc trong fixed_frame). r = nhiễu đo (log: cạnh dao động ~±5 mm),
+# q = tốc độ cho phép trạng thái thay đổi. q/r lớn -> bám nhanh hơn, ít mượt hơn.
+# Giá trị cũ (q=1e-4, r=4e-4) cho hằng số thời gian ~0.8 s -> trễ; giá trị này ~0.2 s.
+kf_process_noise_pos: 1.0e-4      # m^2/s
+kf_measurement_noise_pos: 2.5e-5  # m^2 (~5 mm)
+kf_process_noise_rot: 2.7e-3      # rad^2/s (~3 deg)
+kf_measurement_noise_rot: 6.9e-4  # rad^2 (~1.5 deg)
+
+# Hướng lắp Livox (rad), PHẢI trùng livox_roll / livox_pitch trong
+# pick_and_place_pallet/pallet_tf_publisher.yaml (TF base_link -> livox_frame).
+# Đám mây được xoay về khung nằm ngang (cùng gốc & hướng với Livox, z hướng lên) trước khi detect,
+# nên mọi vùng cắt / ngưỡng ở trên giữ nguyên ý nghĩa như khi Livox lắp phẳng; kết quả được xoay lại
+# về livox_frame khi phát. Lệch so với TF -> cảnh báo lúc khởi động. 0, 0 = lắp phẳng (như cũ).
+livox_roll: -0.1895129165580368  # -10.79 deg from the Livox IMU, = pallet_tf_publisher.yaml
+livox_pitch: 0.030238007382436555  # 1.83 deg down (positive = x axis down) from the Livox IMU, = pallet_tf_publisher.yaml
+livox_mount_yaw: 1.5708  # +90 deg: Livox +y faces the pallet; detection still runs with x toward the pallet
+base_frame: base_link   # chỉ dùng để kiểm tra với TF
+
+# Livox x / y in base_link with the lidar cylinder RETRACTED (= livox_x / livox_y of
+# pallet_tf_publisher.yaml): the crop window is tuned there. When the cylinder pushes the Livox out
+# (TF moves livox_frame by distance_xylanh) the window is shifted back, so it stays on the pallet.
+# Remove both lines to keep the window fixed to the Livox (old behaviour).
+crop_ref_x: -0.355
+crop_ref_y: 0.54

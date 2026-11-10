@@ -1,0 +1,35 @@
+<launch>
+	<arg name="map_file_simulation" default="CCL" />
+	<arg name="simulation" default="false" />
+	<arg name="cmd_vel_final" default="/final_cmd_vel_mux/output" />
+	<arg name="use_hardware" default="true" />
+	<arg name="use_joystick" default="true" />
+	<arg name="subfix" default="py" />
+
+	<!-- Hardware -->
+	<include if="$(arg use_hardware)" file="$(find agvlidar_bringup)/launch/hardware.launch">
+		<arg name="simulation" value="$(arg simulation)" />
+		<arg name="subfix" value="$(arg subfix)" />
+	</include>
+
+	<!-- Simulation -->
+	<group if="$(arg simulation)">
+		<include file="$(find agvlidar_simulation)/launch/stage.launch">
+			<arg name="world_file" value="$(arg map_file_simulation)" />
+			<arg name="cmd_vel_topic" value="$(arg cmd_vel_final)" />
+			<arg name="subfix" value="$(arg subfix)" />
+		</include>
+	</group>
+
+	<!-- <node name="rviz_button_converter" pkg="agv_common_library"
+		type="rviz_button_converter.$(arg subfix)"
+		output="screen" /> -->
+
+	<!-- <node name="joystick_handle" pkg="agvlidar_bringup" type="joystick_handle.$(arg subfix)"
+		output="screen" /> -->
+
+	<include file="$(find agvlidar_bringup)/launch/includes/description.launch.xml" />
+
+	<node name="system_setting" pkg="system_setting" type="network_setting.$(arg subfix)"
+		output="screen" />
+</launch>

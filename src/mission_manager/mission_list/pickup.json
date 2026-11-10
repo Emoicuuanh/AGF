@@ -1,0 +1,14 @@
+{
+  "name": "Test",
+  "group": "move",
+  "actions":
+  [
+    {
+      "name": "Test pickup",
+      "type": "pickup",
+      "params": {
+        "marker_pos": "PickC"
+      }
+    }
+  ]
+}

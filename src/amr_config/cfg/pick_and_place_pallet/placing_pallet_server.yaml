@@ -1,0 +1,18 @@
+# placing_pallet_server parameters
+
+# Target of the correct-angle move when stacking (hight_lifting >= 200 mm):
+#   "pallet"       -> correct to the actual bottom pallet detected by the under lidar (tf_pallet_2)
+#   "placing_pose" -> correct to the placing pose sent in the mission goal
+stack_correct_angle_target: "pallet"
+
+# Correct-angle pose distance from the target (m) = size_pallet + stack_correct_angle_offset
+stack_correct_angle_offset: 0.8
+
+# Placing on the ground (hight_lifting < 200 mm): max side offset (m) of the placing pose from the
+# robot axis before backing in. Above it correct-angle runs again; below it the robot backs
+# straight and the side fork takes the rest (fork range +-0.1 m).
+place_max_diff_y: 0.03
+
+# Max correct-angle runs per placing before ERROR when the robot is still off target after each
+# run. Resetting the error gives a new set of runs.
+correct_angle_max_runs: 3

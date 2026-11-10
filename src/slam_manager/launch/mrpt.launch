@@ -1,0 +1,31 @@
+<launch>
+  <arg name="map_file" default=""/>
+  <arg name="initial_pose_x" default="0.0"/>
+  <arg name="initial_pose_y" default="0.0"/>
+  <arg name="initial_pose_a" default="0.0"/>
+  <arg name="use_aruco_marker" default="true"/>
+  <arg name="aruco_file_path" default=""/>
+  <arg name="subfix" default="py" />
+
+  <node pkg="mrpt_localization" type="mrpt_localization_node" name="mrpt_localization_node" output="screen">
+    <param name="ini_file" value="$(find slam_manager)/param/pf-localization.ini"/>
+    <param name="map_file" value="$(arg map_file).gridmap"/>
+    <param name="odom_frame_id" value="odom"/>
+    <param name="global_frame_id" value="map"/>
+    <param name="base_frame_id" value="base_link"/>
+    <param name="map_update_skip" value="20"/>
+    <param name="particlecloud_update_skip" value="1"/>
+    <param name="tf_prefix" value=""/>
+    <param name="debug" value="true"/>
+    <param name="gui_mrpt" value="false"/>
+    <param name="sensor_sources" value="/scan"/>
+    <!-- <param name="update_while_stopped" value="false"/> -->
+    <!-- <remap from="particlecloud" to="r1/particlecloud"/> -->
+  </node>
+
+  <!-- Load Aruco marker -->
+  <include if="$(arg use_aruco_marker)" file="$(find agvlidar_fiducial)/launch/locate_marker.launch">
+    <arg name="subfix" value="$(arg subfix)" />
+    <arg name="file_path" value="$(arg aruco_file_path)"/>
+  </include>
+</launch>

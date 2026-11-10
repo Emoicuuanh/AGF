@@ -1,0 +1,28 @@
+{
+  "name": "Final mission testing [Huy, Jul 2021]",
+  "group": "move",
+  "actions":
+  [
+    {
+      "name":"move to Tram sac 2",
+      "type": "move",
+      "params": {
+        "start": "Move",
+        "stop": "TramSac2"
+      }
+    },
+    {
+      "name": "Safety setting",
+      "type": "safety_setting",
+      "params":{
+        "safety_job": 4
+      }
+    },
+    {
+      "name": "TramSac2",
+      "type": "charging",
+      "params":{
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+<launch>
+	<arg name="simulation" default="false" />
+	<!-- Hot fix smoother vel working abnormal in simulation mode -->
+	<arg if="$(arg simulation)" name="use_smoother_vel" default="false" />
+	<arg unless="$(arg simulation)" name="use_smoother_vel" default="false" />
+	<arg name="use_smoother_joystick" default="true" />
+
+	<!-- final velocity multiplexer -->
+	<node pkg="nodelet" type="nodelet" name="final_mux_nodelet" args="manager" />
+	<node pkg="nodelet" type="nodelet" name="final_cmd_vel_mux"
+		args="load yocs_cmd_vel_mux/CmdVelMuxNodelet final_mux_nodelet">
+		<param name="yaml_cfg_file" value="$(find agvlidar_bringup)/cfg/final_cmd_vel_mux.yaml" />
+		<!-- keyboard -->
+		<remap from="/final_cmd_vel_mux/input/teleop_key" to="teleop_key_cmd_vel" />
+		<!-- joystick -->
+		<remap if="$(arg use_smoother_joystick)" from="/final_cmd_vel_mux/input/teleop_joy"
+			to="joystick_smoother_cmd_vel" />
+		<remap unless="$(arg use_smoother_joystick)" from="/final_cmd_vel_mux/input/teleop_joy"
+			to="teleop_joy_cmd_vel" />
+		<!-- auto -->
+		<remap if="$(arg use_smoother_vel)" from="/final_cmd_vel_mux/input/auto"
+			to="/auto_cmd_vel_mux/output/smoother" />
+		<remap unless="$(arg use_smoother_vel)" from="/final_cmd_vel_mux/input/auto"
+			to="/auto_cmd_vel_mux/output" />
+
+		<remap from="/final_cmd_vel_mux/input/followline_cmd_vel" to="followline_cmd_vel" />
+		<remap from="/final_cmd_vel_mux/input/retry_docking_cmd_vel" to="retry_docking_cmd_vel" />
+	</node>
+</launch>

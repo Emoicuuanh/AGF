@@ -1,0 +1,26 @@
+planner_setting_action:
+  desired_speed:
+    - forward_vel
+  desired_backward_sp:
+    - backward_vel
+  angular_speed:
+    - angular_vel
+  rotate_speed:
+    - rotate_vel
+  # linear_acc:
+  #   - linear_acc
+  # rotate_vel:
+  #   - rotate_vel
+
+safety_vel:
+  velocity:
+    - 0.0               # Range 1: Alway stop
+    - 0.15              # Range 2
+    - 0.3               # Range ...
+  deceleration: 0.5     # m/s2
+
+obstacle_config:
+  -
+    reconfigure_server: /move_base/local_costmap/obstacle_layer
+  -
+    reconfigure_server: /move_base/global_costmap/obstacle_layer

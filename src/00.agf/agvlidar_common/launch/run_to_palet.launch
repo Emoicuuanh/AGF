@@ -1,0 +1,8 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<node pkg="picking_pallet" name="run_to_pallet" type="run_to_pallet.$(arg subfix)"
+		output="screen">
+		<rosparam command="load" file="$(find amr_config)/cfg/picking_pallet/control.yaml" />
+	</node>
+</launch>

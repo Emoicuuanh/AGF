@@ -1,0 +1,7 @@
+bool EMG_SW
+bool AUTO_MAN_SW
+bool START_SW
+bool STOP_SW
+bool RESET_SW
+bool DETECT_PALLET_SW
+bool DETECT_PALLET_SENSOR

@@ -1,0 +1,7 @@
+<launch>
+	<param name="robot_description" command="cat $(find amr_config)/cfg/transform/model.urdf" />
+
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+		<!-- <remap from="robot_description" to="my_robot_description" /> -->
+	</node>
+</launch>

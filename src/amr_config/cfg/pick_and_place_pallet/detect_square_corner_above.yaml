@@ -1,0 +1,21 @@
+scan1_name: "/scan_1"
+scan1_frame: "laser_1"
+frame_robot: "laser_2"
+frame_pallet: "tf_square_corner_1"
+frame_pallet_under: "tf_pallet_1_under"
+
+use_detect_square_corner: true
+use_frame_under: false
+max_distance_point_to_line: 0.01
+min_size_path: 20
+max_distance_scan: 1.0
+min_distance_scan: 0.07
+lenght_of_pallet: 1.07
+max_diff_lenght: 0.07
+max_diff_create_path: 0.05
+use_3d: true
+tf_edge_3d: "tf_edge_1_3d"
+
+# Frame in which the detected pallet is still. Here: pallet_edge_frame = the pallet carried
+# on the forks during placing -> it moves with the robot, so no odom motion compensation.
+fixed_frame: "base_link"

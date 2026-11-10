@@ -1,0 +1,9 @@
+<launch>
+	<arg name="subfix" default="py" />
+	
+	<node pkg="nav350" name="nav350" type="nav350_node_change.py" output="screen">
+		<rosparam command="load" file="$(find amr_config)/cfg/nav350/nav350.yaml" />
+		<rosparam command="load" file="$(find amr_config)/cfg/tf_agf_robot.yaml" />
+        <remap from="scan" to="scan_nav350" />
+	</node>
+</launch>

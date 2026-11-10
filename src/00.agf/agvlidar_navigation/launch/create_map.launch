@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="agvlidar_navigation" name="create_map" type="create_map.py"/>
+    <!-- <node pkg="rviz" name="rviz" type="rviz"/> -->
+    <node pkg="gmapping" name="gmapping" type="slam_gmapping">
+        <remap from="base_frame" to="base_link" />
+    </node>
+	<include file="$(find amr_config)/launch/nav350.launch" />
+</launch>

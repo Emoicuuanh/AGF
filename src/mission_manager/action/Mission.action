@@ -1,0 +1,10 @@
+# goal
+string mission
+
+---
+# result
+float64 total_time
+
+---
+# feedback
+string action

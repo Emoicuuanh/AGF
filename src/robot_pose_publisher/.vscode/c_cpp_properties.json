@@ -1,0 +1,54 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/mkac/agf_app_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/mkac/agf_app_ws/src/agf_action_common/include/**",
+        "/home/mkac/agf_app_ws/src/agf_local_planner/include/**",
+        "/home/mkac/agf_app_ws/src/agv_common_library/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/amcl/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/base_local_planner/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/carrot_planner/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/clear_costmap_recovery/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/costmap_2d/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/dwa_local_planner/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/global_planner/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/map_server/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/move_base/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/move_slow_and_clear/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/nav_core/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/navfn/include/**",
+        "/home/mkac/agf_app_ws/src/odometry_calculate/include/**",
+        "/home/mkac/agf_app_ws/src/pick_and_place_pallet/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/rotate_recovery/include/**",
+        "/home/mkac/agf_app_ws/src/rviz_navigation_plugin/include/**",
+        "/home/mkac/agf_app_ws/src/sick_scan/include/**",
+        "/home/mkac/agf_app_ws/src/slam_manager/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2_bullet/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2_eigen/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2_geometry_msgs/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2_kdl/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2_msgs/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2_ros/include/**",
+        "/home/mkac/agf_app_ws/src/geometry2/tf2_sensor_msgs/include/**",
+        "/home/mkac/agf_app_ws/src/navigation/voxel_grid/include/**",
+        "/home/mkac/agf_app_ws/src/waypoints_global_planner/include/**",
+        "/home/mkac/agf_app_ws/src/yujin_ocs/yocs_cmd_vel_mux/include/**",
+        "/home/mkac/agf_app_ws/src/yujin_ocs/yocs_velocity_smoother/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

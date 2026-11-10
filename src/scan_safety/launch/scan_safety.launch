@@ -1,0 +1,6 @@
+<launch>
+  <arg name="log_level" default="2"/>
+  <node name="scan_safety" pkg="scan_safety" type="scan_safety_node.py" output="screen" args="$(arg log_level)">
+    <rosparam file="$(find scan_safety)/config/safety_config.yaml" command="load" />
+  </node>
+</launch>

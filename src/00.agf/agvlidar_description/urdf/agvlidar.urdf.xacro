@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<robot name="agvlidar_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find agvlidar_description)/urdf/common_properties.xacro"/>
+
+  <!-- <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.075" rpy="0 0 0"/>
+  </joint> -->
+
+  <!-- <link name="base_link"> -->
+  <link name="base_footprint">
+    <visual>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://agvlidar_description/meshes/bases/agvlidar_base_footprint.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="light_black"/>
+    </visual>
+  </link>
+</robot>

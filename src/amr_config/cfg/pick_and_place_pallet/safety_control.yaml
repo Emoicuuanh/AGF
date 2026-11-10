@@ -1,0 +1,68 @@
+# Safety fields of the pick and place action servers, published on /safety_control.
+# Loaded by picking_pallet_server and placing_pallet_server (restart them after a change).
+#
+# Job order: [top, left, right, front]. 99 = field off.
+# *_zones: distance bands, near to far. The first band with |distance| < max_distance is
+# used, the last band has no max_distance and covers everything further.
+
+placing_safety:
+  # Start of the action, also while lifting / aligning the forks
+  set_safety: [5, 12, 12, 8]
+
+  # Correct-angle move, distance = robot to the correct-angle pose (m)
+  correct_angle_zones:
+    - {max_distance: 1.3, job: [99, 12, 12, 8]}
+    - {max_distance: 1.5, job: [5, 12, 12, 8]}
+    - {max_distance: 1.7, job: [4, 12, 12, 8]}
+    - {job: [4, 12, 12, 8]}
+  correct_angle_done: [99, 12, 12, 8]
+
+  # Backing in on the ground (hight_lifting < height_stack_or_place), distance = robot to goal (m)
+  go_backward_zones:
+    - {max_distance: 1.3, job: [99, 12, 12, 8]}
+    - {max_distance: 1.5, job: [5, 12, 12, 8]}
+    - {max_distance: 1.7, job: [4, 12, 12, 8]}
+    - {job: [4, 12, 12, 8]}
+  go_backward_done: [99, 12, 12, 8]
+
+  # Backing in when stacking (hight_lifting >= height_stack_or_place), distance = robot to goal (m)
+  go_backward_high_zones:
+    - {max_distance: 1.8, job: [99, 12, 12, 8]}
+    - {job: [99, 12, 12, 8]}
+
+  # Fine-tune approach over the bottom pallet
+  fine_tune: [99, 12, 12, 8]
+
+  # Action stopped / finished
+  preempt: [4, 11, 11, 8]
+  done: [6, 11, 11, 8]
+
+picking_safety:
+  # Start of the action
+  set_safety: [99, 12, 12, 8]
+
+  # Correct-position move, distance = robot to the correct-position pose (m)
+  correct_position_zones:
+    - {max_distance: 1.3, job: [99, 99, 99, 9]}
+    - {max_distance: 1.6, job: [99, 12, 12, 9]}
+    - {max_distance: 1.8, job: [4, 12, 12, 9]}
+    - {job: [4, 12, 12, 9]}
+  correct_position_done: [99, 99, 99, 9]
+
+  # Backing in, default field
+  go_backward: [99, 99, 99, 9]
+
+  # Backing in to a high pallet (hight_lifting >= 300, first run, not detected by lidar),
+  # distance = laser_1 to tf_line_go_1_3d in x, minus 0.1 (m)
+  go_backward_high_zones:
+    - {max_distance: 1.0, job: [99, 99, 99, 9]}
+    - {max_distance: 1.6, job: [99, 99, 99, 9]}
+    - {max_distance: 1.8, job: [5, 11, 11, 8]}
+    - {job: [4, 11, 11, 8]}
+
+  # Lifting the pallet off
+  lift_hard: [99, 99, 99, 8]
+
+  # Action stopped / finished
+  preempt: [6, 11, 11, 8]
+  done: [6, 11, 11, 8]

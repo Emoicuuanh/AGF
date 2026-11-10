@@ -1,0 +1,31 @@
+<launch>
+	<!-- Arguments -->
+	<arg name="cmd_vel_topic" default="/cmd_vel" />
+	<arg name="cmd_vel_feedback_topic" default="/cmd_vel" />
+	<arg name="odom_topic" default="odom" />
+	<arg name="global_planner_type" default="waypoints" />
+	<!-- <arg name="local_planner_type" default="agf" /> -->
+	<arg name="local_planner_type" default="mpc" />
+	<!-- <rosparam file="$(find agf_local_planner)/config/mpc_model.yaml" command="load" /> -->
+	<!-- move_base -->
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<rosparam file="$(find amr_config)/cfg/move_base/move_base.yaml" command="load" />
+		<!-- MPC robot model for the agf local planner -->
+		<!-- <rosparam file="$(find agf_local_planner)/config/mpc_model.yaml"
+			command="load" ns="AgfLocalPlannerROS" /> -->
+		<rosparam
+			file="$(find amr_config)/cfg/move_base/$(arg
+		global_planner_type)_global_planner_params.yaml"
+			command="load" />
+		<rosparam
+			file="$(find amr_config)/cfg/move_base/$(arg local_planner_type)_local_planner_params.yaml"
+			command="load" />
+		<!-- global costmap params -->
+		<rosparam file="$(find amr_config)/cfg/move_base/costmap_common_params.yaml" command="load"
+		/>
+		<!-- remap topic -->
+		<remap from="cmd_vel" to="$(arg cmd_vel_topic)" />
+		<remap from="cmd_vel_feedback" to="$(arg cmd_vel_feedback_topic)" />
+	</node>
+
+</launch>

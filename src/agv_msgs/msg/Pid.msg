@@ -1,0 +1,13 @@
+time stamp
+float32 kp
+float32 ki
+float32 kd
+float32 up
+float32 ui
+float32 ud
+float32 u_total
+float32 error
+float32 prev_error
+float32 real_error
+float32 real_prev_error
+float32 delta_error

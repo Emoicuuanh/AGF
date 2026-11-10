@@ -1,0 +1,43 @@
+mapping:
+  method: gmapping
+  launch_file: roslaunch slam_manager gmapping.launch
+  ros_node:
+    - /gmapping # Main node always in top
+    - /get_marker
+  map_save_cmd: rosrun map_server map_saver -f
+  # method: cartographer
+  # launch_file: roslaunch slam_manager carto_mapping.launch
+  # ros_node: # Main node always in top
+  #   - /cartographer_node
+  #   - /cartographer_occupancy_grid_node
+  # map_save_cmd: # TODO: list of command
+  #   - rosservice call /finish_trajectory 0
+  #   - rosservice call /write_state "{filename: '${HOME}/Downloads/b3-2016-04-05-14-14-00.bag.pbstream', include_unfinished_submaps: "true"}"
+
+localization:
+  # method: map_server_amcl
+  # launch_file: roslaunch slam_manager map_server_amcl.launch
+  # ros_node: # Main node always in top
+  #   - /amcl
+  #   - /map_server
+  #   - /locate_marker
+  # map_file_ext: yaml
+  # image_file_input: png
+  # # map_file_param: map_server don't has this param
+  # # convert_map_cmd: convert png to pgm (may be)
+
+  method: mrpt
+  launch_file: roslaunch slam_manager mrpt.launch
+  ros_node: # Main node always in top
+    - /mrpt_localization_node
+    - /locate_marker
+  gen_map: rosrun slam_manager make_mrpt_map.sh
+  map_file_ext: gridmap
+  image_file_input: png
+  map_file_param: /mrpt_localization_node/map_file
+  convert_map_cmd: rosrun slam_manager make_mrpt_map.sh
+
+# transform:
+#   launch_file: "roslaunch agvlidar_bringup transform.launch"
+#   ros_node:
+#     - /transform

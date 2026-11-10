@@ -1,0 +1,7 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<node pkg="picking_pallet" name="publish_tf" type="publish_tf.$(arg subfix)" output="screen">
+		<rosparam command="load" file="$(find amr_config)/cfg/picking_pallet/tf.yaml" />
+	</node>
+</launch>

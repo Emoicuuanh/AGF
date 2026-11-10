@@ -1,0 +1,9 @@
+<launch>
+	<arg name="subfix" default="py" />
+	<arg name="simulation" default="false" />
+
+	<group if="$(arg simulation)">
+		<node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen"
+			args="1.5 -0.2 0 0 0 0 /map /odom 100" />
+	</group>
+</launch>

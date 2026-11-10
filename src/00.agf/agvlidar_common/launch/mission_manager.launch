@@ -1,0 +1,7 @@
+<launch>
+	<arg name="subfix" default="py" />
+
+	<node name="mission_manager" pkg="mission_manager" type="mission_manager_server.$(arg subfix)"
+		output="screen"
+		args="--mission_list $(find amr_config)/cfg/mission_manager/mission_list.yaml" />
+</launch>

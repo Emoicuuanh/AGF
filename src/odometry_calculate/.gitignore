@@ -1,0 +1,23 @@
+*.pyc
+*.exe
+*.spec
+*.deb
+*.c
+*.o
+*.so
+*.with_bootloader.mega.hex
+dist
+build
+__pycache__
+
+# Nuitka
+*.build
+*.bin
+release
+
+obj-x86_64-linux-gnu
+temp.linux-x86_64-2.7
+debian
+*.code-workspace
+.vscode/*
+!.vscode/settings.json

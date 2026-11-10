@@ -1,0 +1,17 @@
+<launch>
+	<!-- Arguments -->
+	<arg name="map_file" default="mkac" />
+	<arg name="use_rviz" default="false" />
+	<arg name="simulation" default="false" />
+	<arg name="use_safety" default="true" />
+	<arg name="subfix" default="py" />
+
+	<group if="$(arg use_safety)">
+		<node name="scan_safety_node_ng" pkg="scan_safety" type="scan_safety_node_ng.$(arg subfix)"
+			output="screen">
+			<rosparam file="$(find amr_config)/cfg/safety_config.yaml" command="load" />
+			<param if="$(arg simulation)" name="use_ultrasonic" value="false" />
+		</node>
+	</group>
+
+</launch>

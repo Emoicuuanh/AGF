@@ -1,0 +1,26 @@
+agf_local_planner:
+  action_server_name: move_base
+  action_server_msg: move_base_msgs.msg
+  action_server_prefix: MoveBase
+  reconfigure_params:
+    # - reconfigure_server: /move_base/AgfLocalPlannerROS
+    - reconfigure_server: /move_base/MpcAgfPlannerROS
+      params:
+        - tag: forward_vel
+          param: max_vel_x
+        - tag: backward_vel
+          param: max_vel_x_backwards
+        - tag: angular_vel
+          param: max_vel_theta
+        - tag: linear_acc
+          param: acc_lim_x
+        - tag: angular_acc
+          param: acc_lim_theta
+        - tag: xy_tolerance
+          param: xy_goal_tolerance
+        - tag: yaw_tolerance
+          param: yaw_goal_tolerance
+    - reconfigure_server: /move_base
+      params:
+        - tag: global_planner
+          param: base_global_planner

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>agf_gazebo_sim</name>
+  <version>0.0.0</version>
+  <description>The agf_gazebo_sim package containing AGF robot model for Gazebo simulation</description>
+
+  <maintainer email="todo@todo.com">author</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>xacro</depend>
+  <depend>urdf</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>joint_state_publisher_gui</depend>
+  <depend>gazebo_ros</depend>
+  <depend>gazebo_msgs</depend>
+  <depend>rviz</depend>
+
+  <export>
+  </export>
+</package>

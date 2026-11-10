@@ -1,0 +1,66 @@
+[
+  {
+    "map": "test1",
+    "name": "restricted_zone",
+    "desc": "",
+    "type": "zone",
+    "polygon": [
+      {
+        "x": -6,
+        "y": 9
+      },
+      {
+        "x": -1,
+        "y": 9
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": -7,
+        "y": 2
+      }
+    ],
+    "properties": {
+      "safety": "enable",
+      "lamp": "enable",
+      "sound": "enable",
+      "velocity": 0.5
+    }
+  },
+  {
+    "map": "test1",
+    "name": "charge_zone",
+    "desc": "",
+    "type": "zone",
+    "polygon": [
+      {
+        "x": -3.5,
+        "y": 5
+      },
+      {
+        "x": -1,
+        "y": 3
+      },
+      {
+        "x": -1,
+        "y": -1
+      },
+      {
+        "x": -6,
+        "y": -1
+      },
+      {
+        "x": -6,
+        "y": 3
+      }
+    ],
+    "properties": {
+      "safety": "disable",
+      "lamp": "enable",
+      "sound": "disable",
+      "velocity": 0.2
+    }
+  }
+]

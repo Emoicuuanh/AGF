@@ -1,0 +1,9 @@
+# Managed by Ansible (roles/hardware). Edit udev_serial_rules in group_vars/all.yml.
+# Gives serial devices access for the dialout group.
+KERNEL=="ttyUSB[0-9]*", MODE="0666", GROUP="dialout"
+KERNEL=="ttyACM[0-9]*", MODE="0666", GROUP="dialout"
+KERNEL=="ttyAMA[0-9]*", MODE="0666", GROUP="dialout"
+KERNEL=="video[0-9]*",  MODE="0666", GROUP="video"
+{% for r in udev_serial_rules %}
+SUBSYSTEM=="tty", ATTRS{idVendor}=="{{ r.vendor }}", ATTRS{idProduct}=="{{ r.product }}"{% if r.serial is defined %}, ATTRS{serial}=="{{ r.serial }}"{% endif %}, SYMLINK+="{{ r.name }}", MODE="0666", GROUP="dialout"
+{% endfor %}

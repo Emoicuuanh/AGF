@@ -1,0 +1,2 @@
+geometry_msgs/PoseStamped Pose
+int8 safety_job

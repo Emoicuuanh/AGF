@@ -1,0 +1,53 @@
+# AGF system config, loaded by launch/trigger_manager.launch
+# (roslaunch system_agf agf_system.launch config:=<other file> to use another one).
+# Each top-level key is a node name: its keys become that node's private params.
+
+system_agf_node:
+  # scan: original polling flow | canon_api: canon_server/get_pallet flow
+  mission_source: canon_api
+
+  # ---- Canon server (only used when mission_source is canon_api) ----
+  # http://<canon_ip>:<port>, shared with agf_status_api below
+  # canon_server_address: &canon_server_address "http://localhost:8090"
+  canon_server_address: &canon_server_address "http://10.0.108.16:9000"
+  # GET, asked for the next pallet, as <endpoint>?id_agf=<agf_id>
+  canon_get_pallet_endpoint: /canon_server/get_pallet
+  # This AGF's id on the Canon server. Keep the quotes: 02 would be the number 2
+  agf_id: &agf_id "01"
+  canon_http_timeout: 3.0        # s, get_pallet connect + total timeout
+  canon_retry_interval: 2.0      # s between get_pallet calls while there is no valid answer
+  mission_accept_timeout: 10.0   # s to wait for a triggered mission to show up in the queue
+  canon_zone_id_offset: 1       # AGF zone = Canon ZoneID - offset
+
+  # ---- Standby pose (map frame, m) ----
+  # Read it with: rostopic echo -n1 /robot_pose
+  # Keep it at the same place as the mission_manager "StandBy" pose (MOVE_TO_STANDBY goes there)
+  standby_x: 5.452726853527963
+  standby_y: -0.23530546184115986
+  standby_tolerance: 1.0      # m, the robot counts as at standby within this distance
+
+agf_status_api:
+  canon_server_address: *canon_server_address
+  agf_id: *agf_id
+  # canon: GET <endpoint>?id_agf=<agf_id>&status=<STATUS> | json: POST to the mocks / GUI
+  status_format: canon
+  canon_robot_status_endpoint: /canon_server/update_status
+  # Sent right away on change, and resent every send_interval s even when unchanged
+  send_interval: 2.0             # s, heartbeat; 0 = only on change
+  # Status sent while no Canon pick / stack mission runs ("" = send nothing while idle)
+  idle_status: IDLE
+  # true: while a mission runs, send the current action name instead of its RUNNING word
+  send_action: true
+  # Canon mission -> mission status -> word sent as update_status?status=<word>
+  canon_status_words:
+    #   RUNNING: sent while the mission runs (when no action is known / send_action false)
+    #   DONE / ERROR: sent once when the mission ends (remove a line to not send it)
+    PICK_FROM_CONVEYOR:
+      RUNNING: PICKING
+      DONE: PICKING_DONE        # pallet picked from the conveyor
+      ERROR: PICKING_ERROR
+    STACK_TO_WAREHOUSE:
+      RUNNING: STACKING
+      DONE: STACKING_DONE       # pallet placed in the warehouse
+      ERROR: STACKING_ERROR
+  robot_timeout: 5.0             # s, json format only: robot online when /robot_status is newer

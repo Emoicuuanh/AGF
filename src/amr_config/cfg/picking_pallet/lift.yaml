@@ -1,0 +1,5 @@
+floor_height:
+  - 90
+  - 420
+  - 2490
+lift_over_to_check: 100

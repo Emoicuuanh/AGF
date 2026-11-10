@@ -1,0 +1,9 @@
+<launch>
+    <arg name="cfg_file" default="$(find odometry_calculate)/cfg/transform.yaml"/>
+
+    <node name="odometry" pkg="odometry_calculate" type="odometry.py" output="screen">
+        <param name="use_absolute_odom" value="false"/>
+        <param name="use_encoder_odom" value="true"/>
+        <rosparam file="$(arg cfg_file)"/>
+    </node>
+</launch>

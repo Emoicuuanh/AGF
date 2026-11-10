@@ -1,0 +1,15 @@
+map_odom_angle: 0.0
+laser_base_x: 0.65
+laser_base_y: 0.0
+laser_base_z: 1.864
+laser_base_angle_yaw: 3.1415
+laser_1_x: 0.80
+laser_1_y: 0.03
+laser_1_angle_yaw: 3.14
+laser_2_x: 0.52
+laser_2_y: 0.02
+laser_2_angle_yaw: 3.130
+wheel_radius: 0.105
+turning_radius: 0.4905
+steer_wheel_x: 1.25
+steer_wheel_y: 0.0

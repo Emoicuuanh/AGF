@@ -1,0 +1,30 @@
+---
+# livox_ros_driver2 links /usr/local/lib/liblivox_lidar_sdk_{static.a,shared.so}
+- name: Check if Livox-SDK2 is already installed
+  ansible.builtin.stat:
+    path: /usr/local/lib/liblivox_lidar_sdk_shared.so
+  register: livox_lib
+
+- name: Build Livox-SDK2
+  when: not livox_lib.stat.exists
+  block:
+    - name: Clone Livox-SDK2
+      ansible.builtin.git:
+        repo: https://github.com/Livox-SDK/Livox-SDK2.git
+        dest: "{{ src_build_dir }}/Livox-SDK2"
+        version: "{{ livox_sdk2_version }}"
+        depth: 1
+
+    - name: Build and install Livox-SDK2
+      ansible.builtin.shell: |
+        set -e
+        mkdir -p build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        make -j{{ build_jobs }}
+        make install
+      args:
+        chdir: "{{ src_build_dir }}/Livox-SDK2"
+        executable: /bin/bash
+
+    - name: Refresh linker cache
+      ansible.builtin.command: ldconfig

@@ -1,0 +1,23 @@
+pose_mapping:
+  picking_pallet: "pCorrectAngle"
+  picking_pallet_3: "pWait"
+  picking_pallet_6: "pTurn3"
+  # Pallet_Input_1: "pTurn3"
+  # Pallet_Input_3: "pTurn2"
+  # turn_point: "pWait"
+db_update_rate_hz: 0.3
+pose_offsets:
+  Pallet_Input:
+    offset_x: 1.0
+    offset_y: 1.0
+  Pallet_Input_1:
+    offset_x: 2.0
+    offset_y: 1.0
+  Pallet_Input_2:
+    offset_x: 2.0
+    offset_y: 1.0
+  Pallet_Input_3:
+    offset_x: 2.0
+    offset_y: 1.0
+#TODO: UpdatePathPickPallet parameters
+# for every mapping in pose_mapping, create corresponding tf lookup and update db (ex: lookup pallet_input_pose to map frame and update pallet_input_pose in db)

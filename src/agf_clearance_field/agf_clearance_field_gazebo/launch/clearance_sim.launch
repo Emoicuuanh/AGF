@@ -1,0 +1,88 @@
+<launch>
+  <!-- Gazebo bench for agf_clearance_field.
+       roslaunch agf_clearance_field_gazebo clearance_sim.launch                  (interactive)
+       roslaunch agf_clearance_field_gazebo clearance_sim.launch scenario:=true   (run test cases)
+  -->
+  <arg name="gui"          default="true"/>
+  <arg name="rviz"         default="true"/>
+  <arg name="scenario"     default="false"/>
+  <arg name="scenarios"    default="$(find agf_clearance_field_gazebo)/config/scenarios.yaml"/>
+  <arg name="exit_when_done" default="false"/> <!-- shut the whole launch down after the scenario (CI) -->
+  <arg name="speed"        default="0.3"/>     <!-- scenario drive speed [m/s] -->
+  <!-- Teleop along the rail: rostopic pub /agf/drive_controller/command std_msgs/Float64 0.2 -->
+  <arg name="mode"         default="manual"/>   <!-- clearance node mounting model: manual | tf -->
+  <arg name="lidar_height" default="1.05"/>
+  <arg name="lidar_y"      default="0.0"/>
+  <arg name="carried_load" default="0.9"/>
+  <arg name="lift_zero"    default="1.40"/>
+  <!-- initial scene (change live with rosparam set /scene_manager/...) -->
+  <arg name="fork_height"           default="1.40"/>
+  <arg name="stack_height_actual"   default="1.144"/>
+  <arg name="stack_height_estimate" default="1.144"/>
+  <arg name="stack_x"               default="3.0"/>
+  <arg name="clearance_config"      default="$(find agf_clearance_field)/config/clearance_field.yaml"/>
+
+  <!-- ============================================================ gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(find agf_clearance_field_gazebo)/worlds/clearance_test.world"/>
+    <arg name="gui"          value="$(arg gui)"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+  </include>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find agf_clearance_field_gazebo)/urdf/agf_clearance.urdf.xacro
+                  lidar_height:=$(arg lidar_height) lidar_y:=$(arg lidar_y)
+                  carried_load:=$(arg carried_load) lift_zero:=$(arg lift_zero)"/>
+
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_agf" output="screen"
+        args="-urdf -param robot_description -model agf -x 0 -y 0 -z 0"/>
+
+  <rosparam ns="agf" command="load" file="$(find agf_clearance_field_gazebo)/config/controllers.yaml"/>
+  <node pkg="controller_manager" type="spawner" name="controller_spawner" ns="agf" output="screen"
+        args="joint_state_controller drive_controller lift_controller"/>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <remap from="joint_states" to="/agf/joint_states"/>
+  </node>
+
+  <node pkg="agf_clearance_field_gazebo" type="scene_manager.py" name="scene_manager" output="screen">
+    <param name="lift_zero"             value="$(arg lift_zero)"/>
+    <param name="fork_height"           value="$(arg fork_height)"/>
+    <param name="stack_height_actual"   value="$(arg stack_height_actual)"/>
+    <param name="stack_height_estimate" value="$(arg stack_height_estimate)"/>
+    <param name="stack_x"               value="$(arg stack_x)"/>
+    <remap from="lift_command"       to="/agf/lift_controller/command"/>
+    <remap from="joint_states"       to="/agf/joint_states"/>
+    <remap from="fork_height"        to="/agf/fork_height"/>
+    <remap from="lower_stack_height" to="/agf/lower_stack_height"/>
+  </node>
+
+  <!-- ============================================================ node under test -->
+  <node pkg="agf_clearance_field" type="clearance_field_node.py" name="clearance_field" output="screen">
+    <rosparam command="load" file="$(arg clearance_config)"/>
+    <param name="mode"            value="$(arg mode)"/>
+    <param name="lidar_height"    value="$(arg lidar_height)"/>
+    <param name="reference_frame" value="base_footprint"/>
+    <remap from="scan"               to="/lidar_vertical/scan"/>
+    <remap from="lower_stack_height" to="/agf/lower_stack_height"/>
+    <remap from="fork_height"        to="/agf/fork_height"/>
+    <remap from="enable"             to="/agf/clearance_enable"/>
+  </node>
+
+  <!-- ============================================================ scenario runner -->
+  <node if="$(arg scenario)" pkg="agf_clearance_field_gazebo" type="scenario.py"
+        name="clearance_scenario" output="screen" required="$(arg exit_when_done)">
+    <rosparam command="load" file="$(arg scenarios)"/>
+    <param name="speed" value="$(arg speed)"/>
+    <remap from="drive_command"      to="/agf/drive_controller/command"/>
+    <remap from="joint_states"       to="/agf/joint_states"/>
+    <remap from="fork_height"        to="/agf/fork_height"/>
+    <remap from="field_clear"        to="/clearance_field/field_clear"/>
+    <remap from="field_status"       to="/clearance_field/status"/>
+    <remap from="lower_stack_height" to="/agf/lower_stack_height"/>
+  </node>
+
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find agf_clearance_field_gazebo)/rviz/clearance_sim.rviz"/>
+</launch>

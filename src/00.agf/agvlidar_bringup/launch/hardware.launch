@@ -1,0 +1,47 @@
+<launch>
+	<arg name="simulation" default="false" />
+	<arg name="use_laser" default="true" />
+	<arg name="use_plc" default="true" />
+	<arg name="use_safety" default="true" />
+	<arg name="use_camera" default="false" />
+	<arg name="subfix" default="py" />
+
+	<group if="$(arg simulation)">
+		<node name="fake_hardware" pkg="agvlidar_bringup" type="fake_hardware.$(arg subfix)" output="screen" />
+	</group>
+
+	<include file="$(find agvlidar_bringup)/launch/robot_pose_publisher.launch" >
+		<arg name="simulation" value="$(arg simulation)" />
+	</include>
+
+	<group unless="$(arg simulation)">
+		<!-- PLC -->
+		<group if="$(arg use_plc)">
+			<node pkg="agf_plc_communication" name="plc_modbus_client" type="plc_pymodbus_client.py" output="screen">
+				<rosparam file="$(find amr_config)/cfg/agf_plc_communication/plc_modbus_client.yaml" command="load"/>
+			</node>
+
+			<node pkg="agf_plc_communication" name="plc_driver" type="plc_driver.py" output="screen">
+				<rosparam file="$(find amr_config)/cfg/agf_plc_communication/plc_driver.yaml" command="load"/>
+			</node>
+		</group>
+
+		<!-- Laser -->
+		<group if="$(arg use_laser)">
+			<include file="$(find amr_config)/launch/nav350_new.launch">
+				<arg name="subfix" value="$(arg subfix)" />
+			</include>
+
+			<!-- <include file="$(find amr_config)/launch/tim781.launch"/> -->
+
+			<include file="$(find amr_config)/launch/olelidar.launch"/>
+		</group>
+
+		<!-- Camera -->
+		<group if="$(arg use_camera)">
+			<include file="$(find amr_config)/launch/camera.launch" />
+		</group>
+
+	</group>
+
+</launch>

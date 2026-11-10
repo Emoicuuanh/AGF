@@ -1,0 +1,77 @@
+{
+  "name": "Transport shelf 1",
+  "group": "move",
+  "actions":
+  [
+    {
+    "name": "name",
+    "type": "adjust_localization"
+    },
+    {
+    "name": "name",
+    "type": "Check_position_status",
+    "params":{
+    "position": {"x": 10, "y": 5.0, "theta": 0.5},
+    "accepted_result": "free",
+    "timeout": 5.0
+    }
+    },
+    {
+    "name": "name",
+    "type": "planner_setting",
+    "params":{
+    "desired_speed": 0.6
+    }
+    },
+    {
+    "name": "move to A",
+    "type": "move",
+    "params": {
+    "position": {"x": 10, "y": 5.0, "theta": 0.5},
+    "retries": 5,
+    "distance_threshold": 0.05
+    }
+    },
+    {
+    "name": "pick up cart at A",
+    "type": "pick_up_cart",
+    "params":{
+    "position": {"x": 10, "y": 5.0, "theta": 0.5},
+    "cart": "type_A"
+    }
+    },
+    {
+    "name": "check cart",
+    "type": "Check_position_status",
+    "params": {
+    "position": {"x": 10, "y": 5.0, "theta": 0.5},
+    "accepted_result": "occupied",
+    "timeout": 5.0
+    }
+    },
+    {
+      "name": "name",
+      "type": "set_footprint",
+      "params":{
+        "footprint": ["<mang footprint>"]
+      }
+    },
+    {
+      "name": "move to B",
+      "type": "move",
+      "params":{
+        "position": {"x": 10, "y": 5.0, "theta": 0.5},
+        "retries": 5,
+        "distance_threshold": 0.05
+      }
+    },
+    {
+      "name": "place cart at A",
+      "type": "place_cart",
+      "params":{
+        "position": {"x": 10, "y": 5.0, "theta": 0.5},
+        "reverse_into_place": 2.0
+      }
+    }
+  ]
+}

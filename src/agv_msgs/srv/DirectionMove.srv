@@ -1,0 +1,2 @@
+---
+int8 direction # 0: free, 1:forward, 2: backward

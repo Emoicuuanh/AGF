@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+
+<robot name="agf_model" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+<xacro:include filename="$(find agf_gazebo_sim)/urdf/agf_control.xacro"/>
+<xacro:include filename="$(find agf_gazebo_sim)/urdf/materials.xacro"/>
+
+<gazebo reference="Untitled_FB15CA1-Body_Component2_v6__1__1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>false</selfCollide>
+  <collideBitmask>0x01</collideBitmask>
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-Body_Component2_v6_1"> 
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>false</selfCollide>
+  <collideBitmask>0x01</collideBitmask>
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-FrontWheel_v4__1__1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>false</selfCollide>
+  <collideBitmask>0x01</collideBitmask>
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-FrontWheel_v4_1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>false</selfCollide>
+  <collideBitmask>0x01</collideBitmask>
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-BackWheel_v3__1__1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>false</selfCollide>
+  <collideBitmask>0x01</collideBitmask>
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-BackWheel_v3_1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>false</selfCollide>
+  <collideBitmask>0x01</collideBitmask>
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-Fork-Frame_v1_1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+  <!-- <collideBitmask>0x01</collideBitmask> -->
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-Fork-Push-Frame_v7_1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+  <!-- <collideBitmask>0x01</collideBitmask> -->
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-Fork-Lift-Frame_v1_1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+  <!-- <collideBitmask>0x01</collideBitmask> -->
+</gazebo>
+
+<gazebo reference="Untitled_FB15CA1-Fork-Up-Frame_v3_1">
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+  <!-- <collideBitmask>0x01</collideBitmask> -->
+</gazebo>
+
+</robot>

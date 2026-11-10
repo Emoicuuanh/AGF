@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<launch>
+  <!--PARAMETERS-->
+  <param name="ini_filename" value="$(find mrpt_icp_slam_2d)/tutorial/icp_slam_demo.ini"/>
+  <param name="odom_frame_id" value="odom"/>
+  <param name="global_frame_id" value="map"/>
+   <param name="no_mirror" value="true"/>
+  <param name="use_odom" value="true"/>
+  <param name="log_icp" value="true"/>
+  <param name="logicp_filename" value="/home/mkac/agf_app_ws/src/mrpt_slam/mrpt_icp_slam_2d/log_icp/log_icp.txt"/>
+  <param name="base_frame_id" value="base_footprint"/>
+   <param name="global_mrpt_frame_id" value="map_mrpt"/>
+  <!--for multiple sensors, place comma eg "r1/front_laser/scan,/beacon" -->
+  <param name="sensor_source" value="/scan_nav350"/>
+  <param name="trajectory_update_rate" value="10"/>
+  <param name="trajectory_publish_rate" value="5"/>
+  <!-- <env name="ROSCONSOLE_CONFIG_FILE" value="$(find mrpt_icp_slam_2d)/config/rosconsole.config"/> -->
+
+  <!--PLAY BAG FILE-->
+  <!-- <include file="$(find mrpt_rawlog)/launch/demo_rosbag.launch" /> -->
+
+  <!--SLAM RUN-->
+  <!-- <node pkg="rviz" type="rviz" name="rviz_nav" output="screen" args="-d $(find mrpt_icp_slam_2d)/rviz/rviz_conf.rviz"></node> -->
+  <node pkg="mrpt_icp_slam_2d" type="mrpt_icp_slam_2d" name="mrpt_icp_slam_2d" output="screen">
+    <!-- NAV350 -> base offset, shared with forklift_tf_publisher -->
+    <rosparam file="$(find amr_config)/cfg/tf_agf_robot.yaml" command="load"/>
+  </node>
+
+</launch>

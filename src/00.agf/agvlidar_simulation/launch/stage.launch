@@ -1,0 +1,23 @@
+<launch>
+	<arg name="world_file" default="CCL" />
+	<arg name="cmd_vel_topic" default="/cmd_vel" />
+	<arg name="use_rviz" default="false" />
+	<arg name="subfix" default="$(arg subfix)" />
+
+	<node pkg="stage_ros" type="stageros" name="stageros"
+		args="$(find amr_config)/stage/$(arg world_file).world" output="screen">
+		<remap from="base_scan" to="scan_in" />
+		<remap from="base_scan" to="scan_map" />
+		<remap from="tf" to="tf_in" />
+		<remap from="odom" to="odom_in" />
+		<!-- <remap from="cmd_vel" to="$(arg cmd_vel_topic)" /> -->
+	</node>
+
+	<node pkg="agvlidar_simulation" type="stage_converter.$(arg subfix)" name="stage_converter"
+		output="screen" />
+
+	<!-- rviz -->
+	<group if="$(arg use_rviz)">
+		<include file="$(find agvlidar_navigation)/launch/rviz.launch" />
+	</group>
+</launch>

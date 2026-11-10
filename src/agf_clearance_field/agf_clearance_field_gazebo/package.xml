@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>agf_clearance_field_gazebo</name>
+  <version>0.1.0</version>
+  <description>
+    Gazebo (classic 11, ROS Noetic) test bench for agf_clearance_field: a simplified AGF with a
+    lifting fork carriage, a carried pallet + load, a vertical-plane 2D LiDAR and a lower stack.
+    A scenario runner drives the AGF to the check position, reads field_clear and compares it
+    with the ground-truth clearance and the physical outcome of driving over the stack.
+  </description>
+  <maintainer email="damquockhanh9@gmail.com">Khanh</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>agf_clearance_field</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>gazebo_ros_control</exec_depend>
+  <exec_depend>gazebo_msgs</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_state_controller</exec_depend>
+  <exec_depend>position_controllers</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>rviz</exec_depend>
+</package>

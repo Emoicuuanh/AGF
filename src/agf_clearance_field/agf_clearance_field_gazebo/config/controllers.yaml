@@ -1,0 +1,17 @@
+# Loaded into the /agf namespace (gazebo_ros_control robotNamespace).
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+# Drive along the rail: command = forward speed [m/s]. Force is saturated at the URDF
+# effort limit (20 kN), so the AGF stalls when it hits the stack instead of pushing through.
+drive_controller:
+  type: effort_controllers/JointVelocityController
+  joint: rail_joint
+  pid: {p: 30000.0, i: 0.0, d: 0.0}
+
+# PositionJointInterface without PID gains -> gazebo_ros_control sets the joint position directly.
+# The command is relative to lift_zero (see urdf/agf_clearance.urdf.xacro); scene_manager converts.
+lift_controller:
+  type: position_controllers/JointPositionController
+  joint: lift_joint

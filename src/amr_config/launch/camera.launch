@@ -1,0 +1,14 @@
+<launch>
+	<arg name="use_front_cam" default="false"/>
+    <arg name="use_rear_cam" default="true"/>
+
+	<group>
+		<!-- <remap from="/front_cam/image_raw/compressed" to="/front_fiducial_images/compressed"/> -->
+		<!-- <remap from="/rear_cam/image_raw/compressed" to="/rear_fiducial_images/compressed"/> -->
+		<include file="$(find agvlidar_fiducial)/launch/launch_hardware.launch">
+			<arg name="use_front_cam" value="$(arg use_front_cam)"/>
+			<arg name="use_rear_cam" value="$(arg use_rear_cam)"/>
+			<!-- <arg name="use_aruco" value="false"/> -->
+		</include>
+	</group>
+</launch>

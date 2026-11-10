@@ -1,0 +1,51 @@
+<library path="lib/librviz_navigation_plugin">    
+    <class name="rviz_navigation_plugin/VelocityPanel"
+        type="rviz_telop_commander::TeleopPanel"
+        base_class_type="rviz::Panel">
+    <description>
+      A panel widget allowing simple diff-drive style robot base control.
+    </description>
+  </class>
+  <class name="rviz_navigation_plugin/StartButton"
+        type="rviz_navigation::NavigationButton"
+        base_class_type="rviz::Panel">
+    <description>
+      A Button to call a navigation service.
+    </description>
+  </class>
+  <class name="rviz_navigation_plugin/LabelNavGoal"
+        type="rviz_point_label::LabelPointTool"
+        base_class_type="rviz::Tool">
+    <description>
+      A Tool to pub a test navigation goal.
+    </description>
+  </class>
+  <class name="rviz_navigation_plugin/LabelPoseEstimate"
+        type="rviz_estimate_label::LabelEstimateTool"
+        base_class_type="rviz::Tool">
+    <description>
+      A Tool to pub a test initial pose.
+    </description>
+  </class>
+  <class name="rviz_navigation_plugin/SetWaypoint"
+        type="rviz_set_waypoint::SetWaypointTool"
+        base_class_type="rviz::Tool">
+    <description>
+      A Tool to set waypoint pose.
+    </description>
+  </class>
+  <class name="rviz_navigation_plugin/RotateDiff"
+        type="rviz_rotate_diff::RotateDiffGoal"
+        base_class_type="rviz::Tool">
+    <description>
+      A Tool to set rotate diff pose.
+    </description>
+  </class>
+  <class name="rviz_navigation_plugin/MoveToPoint"
+        type="rviz_move_to_point::MoveToPointGoal"
+        base_class_type="rviz::Tool">
+    <description>
+      A Tool to set move to point.
+    </description>
+  </class>
+</library>

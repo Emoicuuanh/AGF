@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Name=Control System
+# Icon=/usr/share/pixmaps/amr.png
+Exec=terminator -e "bash -c '$HOME/catkin_ws/src/control_system/scripts/control_system.sh 0;$SHELL'"

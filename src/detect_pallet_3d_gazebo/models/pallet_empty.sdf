@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+  1.2 (deep) x 1.0 (wide) x 0.15 pallet, three stringers with fork pockets.
+  Model origin = center of the FRONT face on the floor, x out of the face (toward the robot),
+  same convention as pallet_front_frame / pallet_edge_frame. Body extends along -x.
+  The front corners (edge detector) are at x = 0, y = +-0.5.
+-->
+<sdf version="1.6">
+  <model name="pallet_empty">
+    <static>true</static>
+    <link name="link">
+      <collision name="top_deck_col">
+        <pose>-0.6 0 0.139 0 0 0</pose>
+        <geometry><box><size>1.2 1 0.022</size></box></geometry>
+      </collision>
+      <visual name="top_deck_vis">
+        <pose>-0.6 0 0.139 0 0 0</pose>
+        <geometry><box><size>1.2 1 0.022</size></box></geometry>
+        <material><ambient>0.82 0.45 0.20 1</ambient><diffuse>0.82 0.45 0.20 1</diffuse></material>
+      </visual>
+      <collision name="stringer_left_col">
+        <pose>-0.6 0.45 0.075 0 0 0</pose>
+        <geometry><box><size>1.2 0.1 0.106</size></box></geometry>
+      </collision>
+      <visual name="stringer_left_vis">
+        <pose>-0.6 0.45 0.075 0 0 0</pose>
+        <geometry><box><size>1.2 0.1 0.106</size></box></geometry>
+        <material><ambient>0.82 0.45 0.20 1</ambient><diffuse>0.82 0.45 0.20 1</diffuse></material>
+      </visual>
+      <collision name="stringer_mid_col">
+        <pose>-0.6 0 0.075 0 0 0</pose>
+        <geometry><box><size>1.2 0.1 0.106</size></box></geometry>
+      </collision>
+      <visual name="stringer_mid_vis">
+        <pose>-0.6 0 0.075 0 0 0</pose>
+        <geometry><box><size>1.2 0.1 0.106</size></box></geometry>
+        <material><ambient>0.82 0.45 0.20 1</ambient><diffuse>0.82 0.45 0.20 1</diffuse></material>
+      </visual>
+      <collision name="stringer_right_col">
+        <pose>-0.6 -0.45 0.075 0 0 0</pose>
+        <geometry><box><size>1.2 0.1 0.106</size></box></geometry>
+      </collision>
+      <visual name="stringer_right_vis">
+        <pose>-0.6 -0.45 0.075 0 0 0</pose>
+        <geometry><box><size>1.2 0.1 0.106</size></box></geometry>
+        <material><ambient>0.82 0.45 0.20 1</ambient><diffuse>0.82 0.45 0.20 1</diffuse></material>
+      </visual>
+      <collision name="bottom_front_col">
+        <pose>-0.05 0 0.011 0 0 0</pose>
+        <geometry><box><size>0.1 1 0.022</size></box></geometry>
+      </collision>
+      <visual name="bottom_front_vis">
+        <pose>-0.05 0 0.011 0 0 0</pose>
+        <geometry><box><size>0.1 1 0.022</size></box></geometry>
+        <material><ambient>0.82 0.45 0.20 1</ambient><diffuse>0.82 0.45 0.20 1</diffuse></material>
+      </visual>
+      <collision name="bottom_mid_col">
+        <pose>-0.6 0 0.011 0 0 0</pose>
+        <geometry><box><size>0.1 1 0.022</size></box></geometry>
+      </collision>
+      <visual name="bottom_mid_vis">
+        <pose>-0.6 0 0.011 0 0 0</pose>
+        <geometry><box><size>0.1 1 0.022</size></box></geometry>
+        <material><ambient>0.82 0.45 0.20 1</ambient><diffuse>0.82 0.45 0.20 1</diffuse></material>
+      </visual>
+      <collision name="bottom_back_col">
+        <pose>-1.15 0 0.011 0 0 0</pose>
+        <geometry><box><size>0.1 1 0.022</size></box></geometry>
+      </collision>
+      <visual name="bottom_back_vis">
+        <pose>-1.15 0 0.011 0 0 0</pose>
+        <geometry><box><size>0.1 1 0.022</size></box></geometry>
+        <material><ambient>0.82 0.45 0.20 1</ambient><diffuse>0.82 0.45 0.20 1</diffuse></material>
+      </visual>
+    </link>
+  </model>
+</sdf>

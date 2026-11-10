@@ -1,0 +1,197 @@
+battery:
+  low_threshold: 15
+  empty_threshold: 5
+
+option:
+  use_safety: true
+
+# server:
+#     address: 'http://localhost:1337/parse/'
+#     data:
+#         agv: "AGV 01"
+#     header:
+#         X-Parse-Application-Id: "APPLICATION_ID"
+#         X-Parse-Master-Key: "YOUR_MASTER_KEY"
+#         Content-Type: "application/json"
+
+# TODO: Config standard button in /standart_io topic
+button:
+  - front_start_button:
+      field_name: start_1_button
+      action:
+        WAITING:
+        press: FRONT_START_BUTTON
+        RUNNING: NOTHING
+  - front_pause_button:
+      field_name: stop_1_button
+      action:
+        RUNNING:
+        press: PAUSE
+        hold: STOP
+  - rear_start_button:
+      field_name: start_2_button
+      action:
+        WAITING:
+        press: REAR_START_BUTTON
+        RUNNING: NOTHING
+  - rear_pause_button:
+      field_name: stop_2_button
+      action:
+        RUNNING:
+        press: PAUSE
+        hold: STOP
+
+# TODO: Config trigger here
+trigger:
+  - FRONT_START_BUTTON
+  - REAR_START_BUTTON
+
+# Thứ tự ưu tiên của error_list phụ thuộc vào thứ tự của module
+module_list:
+  # Modules which all type of robot need
+  # - template_module:
+  #     display_name: Template module
+  #     error_list:           # Define special ERROR for special LED EFFECT. ERROR only belong to this module (not belong to sub module)
+  #     - ERROR_1:
+  #         detail_status: ERROR_A    # Display in app
+  #         led_status: LED_A         # Display in led
+  #     - ERROR_2:
+  #         detail_status: ERROR_B
+  #     state_list:
+  #     - STATE_1:
+  #         detail_status: STATE_A
+  #         led_status: LED_B
+  #     - STATE_2:
+  #         detail_status: STATE_B
+
+  - mission_manager:
+      display_name: Mission
+      error_list:
+        - DUPLICATE_MARKER:
+            detail_status: DUPLICATE_MARKER
+        - MARKER_DIR_WRONG:
+            detail_status: MARKER_DIR_WRONG
+        - MISSION_EMPTY:
+            detail_status: MISSION_EMPTY
+        - MISSING_ACTION_DATA:
+            detail_status: MISSING_ACTION_DATA
+        - ERROR:
+            detail_status: MISSION_ERROR
+            led_status: MISSION_ERROR
+  - slam_manager:
+      display_name: Slam
+      timeout: 5.0
+  - moving_control:
+      display_name: Moving
+      pause_if_error: false
+      # error_list:
+      # - ERROR:
+      #     detail_status: MOVING_ERROR
+      #     led_status: MOVING_ERROR
+      state_list:
+        - MOVING:
+            detail_status: GOING_TO_POS
+            led_status: GOING_TO_POS
+        - STOP_BY_SAFETY:
+            detail_status: SAFETY_STOP
+            led_status: SAFETY_STOP
+            sound_status: SAFETY_STOP
+      # - WAIT_CLEAR_SAFETY:
+      #     detail_status: SAFETY_STOP
+      #     led_status: SAFETY_STOP
+- charging_process:
+    display_name: Charging process
+    pause_if_error: false
+    error_list:
+    - CONTACT_ERROR:
+        detail_status: CHARGING_ERROR
+        led_status: CHARGING_ERROR
+    state_list:
+    - AUTO_CHARGING:
+        detail_status: AUTO_CHARGING
+        led_status: AUTO_CHARGING
+    - MANUAL_CHARGING:
+        detail_status: MANUAL_CHARGING
+        led_status: MANUAL_CHARGING
+    - FULL:
+        detail_status: CHARGING_FULL
+        led_status: WAITING
+
+# Optional modules
+# - auto_docking:
+#     display_name: Docking
+#     pause_if_error: false
+#     error_list:
+#     - DETECT_MARKER_ERROR:
+#         detail_status: DETECT_MARKER_ERROR
+#         # led_status: ERROR
+#     - PRECISION_ERROR:                    # TODO: Check ICP to confirm
+#         detail_status: PRECISION_ERROR
+#         # led_status: ERROR
+# - auto_cart:
+#     display_name: Cart
+#     pause_if_error: false
+#     error_list:
+#     - NO_CART:
+#         detail_status: NO_CART
+#         # led_status: NO_CART
+#     - LIFT_STUCK:
+#         detail_status: LIFT_STUCK
+#         # led_status: LIFT_STUCK
+#     - LIFT_POSITION_WRONG:
+#         detail_status: LIFT_TABLE_NOT_IN_MIN
+#         # led_status: LIFT_POSITION_WRONG
+# - sound_control:
+#     display_name: Sound
+#     status_topic: sound_status
+#     status_msg: std_stamped_msgs/StringStamped
+#     parse_json: false
+#     handle_when_sim: true
+# - led_control:
+#     display_name: Led
+#     status_topic: led_control_alive
+#     status_msg: std_stamped_msgs/StringStamped
+#     parse_json: false
+#     handle_when_sim: false
+# - safety_module:
+#     display_name: Safety
+#     status_topic: /safety_status
+#     status_msg: safety_msgs/SafetyStatus
+#     parse_json: false
+#     handle_when_sim: false
+# - keya_servo:
+#     display_name: Motor
+#     status_topic: /motor_encoder
+#     status_msg: agv_msgs/EncoderDifferential
+#     parse_json: false
+#     timeout: 0.5    # Second, default = 2.0 s
+#     handle_when_sim: false
+# - laser_front:
+#     display_name: Front laser
+#     status_topic: /scan_1
+#     status_msg: sensor_msgs/LaserScan
+#     parse_json: false
+#     timeout: 0.5
+#     handle_when_sim: false
+# - laser_rear:
+#     display_name: Rear laser
+#     status_topic: /scan_2
+#     status_msg: sensor_msgs/LaserScan
+#     parse_json: false
+#     timeout: 0.5
+#     handle_when_sim: false
+# - ultra_sonic:
+#     display_name: Ultra sonic
+#     status_topic: /ultrasonic/ultrasonic_ranges
+#     status_msg: ultra_sonic/UltrasonicRanges
+#     parse_json: false
+#     timeout: 1.0
+#     handle_when_sim: false
+#     check_script: self.module_status_msg.ranges[0] != -1 # Script check if module working normal
+# - imu:
+#     display_name: IMU
+#     status_topic: /imu_data
+#     status_msg: sensor_msgs/Imu
+#     parse_json: false
+#     timeout: 0.5
+#     handle_when_sim: false

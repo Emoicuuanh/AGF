@@ -1,0 +1,47 @@
+move:
+  action_server: moving_control
+  need_undocking: true
+  module_name: moving_control
+set_footprint:
+  action_server: set_footprint
+  need_undocking: false
+set_safety_job:
+  action_server: set_safety_job
+  need_undocking: false
+relative_move:
+  action_server: moving_control
+  need_undocking: true
+  module_name: moving_control
+planner_setting:
+  action_server: planner_setting
+  need_undocking: false
+docking_charger:
+  action_server: docking_charger_server
+  need_undocking: true
+trigger_mission_server:
+  action_server: trigger_mission_server
+  need_undocking: false
+stop_and_wait:
+  action_server: stop_and_wait
+  need_undocking: false
+run_to_pallet_wrapper:
+  action_server: run_to_pallet_wrapper
+  need_undocking: false
+read_and_run_to_pallet_wrapper:
+  action_server: read_and_run_to_pallet_wrapper
+  need_undocking: false
+pick_pallet_wrapper:
+  action_server: picking_pallet_wrapper
+  need_undocking: false
+place_pallet_wrapper:
+  action_server: putting_pallet_wrapper
+  need_undocking: false
+correct_angle_pose_server:
+  action_server: correct_angle_pose_server
+  need_undocking: false
+picking_pallet_server:
+  action_server: picking_pallet_server
+  need_undocking: false
+placing_pallet_server:
+  action_server: placing_pallet_server
+  need_undocking: false

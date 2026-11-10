@@ -1,0 +1,11 @@
+{
+  "python.autoComplete.extraPaths": [
+    "/home/mkac/agf_app_ws/devel/lib/python3/dist-packages",
+    "/opt/ros/noetic/lib/python3/dist-packages"
+  ],
+  "python.analysis.extraPaths": [
+    "/home/mkac/agf_app_ws/devel/lib/python3/dist-packages",
+    "/opt/ros/noetic/lib/python3/dist-packages"
+  ],
+  "ros.distro": "noetic"
+}

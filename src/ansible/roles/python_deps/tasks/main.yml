@@ -1,0 +1,39 @@
+---
+# Use apt where Ubuntu ships the package (built against the system Python 3.8
+# that ROS Noetic uses); pip only for packages that are missing or too old.
+- name: Install Python packages from apt
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+      - python3-dev
+      - python3-numpy
+      - python3-scipy
+      - python3-matplotlib
+      - python3-yaml
+      - python3-serial              # pyserial (safety_rs232, agv_common_library)
+      - python3-requests
+      - python3-flask               # sensorAPI
+      - python3-psycopg2            # agf_system/sql_manager, safety_cannon
+      - python3-dnspython
+      - python3-tk
+      - python3-pil
+      - python3-pyqt5
+      - python3-shapely
+    state: present
+
+- name: Remove the standalone 'bson' pip package (breaks pymongo's bson)
+  ansible.builtin.pip:
+    name: bson
+    state: absent
+    executable: pip3
+
+- name: Install Python packages from pip
+  ansible.builtin.pip:
+    name: "{{ pip_packages }}"
+    executable: pip3
+
+- name: Install perception Python packages (detect_pallet_3d)
+  ansible.builtin.pip:
+    name: "{{ pip_perception_packages }}"
+    executable: pip3
+  when: install_perception_python | bool

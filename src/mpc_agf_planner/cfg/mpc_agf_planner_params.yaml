@@ -1,0 +1,60 @@
+# Load under move_base and set
+#   base_local_planner: "mpc_agf_planner/MpcAgfPlannerROS"
+MpcAgfPlannerROS:
+  odom_topic: odom
+  error_to_low_speed_points: 1.5
+  error_to_special_safety_points: 1.6
+  max_vel_x: 0.7
+  max_angular_z: 1.0         # rad, absolute left wheel steering limit
+  error_to_start_stop: 1.5
+  max_steering_rate: 0.8     # rad/s, MPC constraint; keep at/below the steering actuator speed (0 = off)
+  steering_lag_slowdown: 0.15  # rad; if measured steering lags the command by more, use vel_x_when_more_angle (0 = off)
+  vel_x_when_more_angle: 0.35
+  # Creep after the stop command: robot keeps its speed for brake_delay, then
+  # decelerates at brake_decel. creep = v*brake_delay + v^2/(2*brake_decel).
+  # Stop is commanded when the remaining path equals the creep.
+  # Both 0: old behaviour, stop inside xy_goal_tolerance.
+  brake_delay: 0.0           # s, measure: time from cmd_vel 0 until the brake grips
+  brake_decel: 0.0           # m/s^2, measure: deceleration once the brake grips (0 = ignore)
+  odom_timeout: 0.5          # s, older odometry is not used for the speed (falls back to /cmd_vel_feedback)
+
+  # MPC model. steer_axle_x is the signed x of the steering axle in base_link,
+  # which must be at the center of the fixed axle (< 0: steering axle behind it).
+  # Command angular.z and /steering_angle are the LEFT wheel angle (positive =
+  # wheel turned left / CCW). Run script/identify_model.py for tau_steer and delay.
+  steer_axle_x: -1.25        # m, signed x of steering axle in base_link (< 0: behind base_link)
+  track_width: 0.0           # m, distance between the two steering pivots (0 = treat left wheel as bicycle angle) -- SET THIS
+  min_steering_angle_deg: -51.6  # deg, left wheel limit turning wheels right (default: car_like/steering_angle_for_rotate_min)
+  max_steering_angle_deg: 40.1   # deg, left wheel limit turning wheels left (default: car_like/steering_angle_for_rotate_max)
+  tau_steer: 0.4             # s, steering motor time constant
+  delay: 0.1                 # s, command to motion latency
+  mpc_horizon: 20            # steps
+  mpc_dt: 0.1                # s per step (horizon = 2 s)
+  # MPC weights (also in dynamic reconfigure)
+  q_ey: 40.0                 # higher: tighter on the line, more steering activity
+  q_epsi: 6.0                # higher: less heading overshoot / oscillation
+  qf_scale: 10.0             # end of horizon weight multiplier
+  r_steer: 0.3               # higher: closer to curvature feedforward, softer correction
+  r_dsteer: 1.0              # higher: smoother steering, slower reaction
+  # Reference path and speed profile
+  path_ds: 0.05              # m, path resampling step
+  kappa_half_span: 0.25      # m, curvature smoothing, +- arc length
+  a_acc: 0.4                 # m/s^2
+  a_brake: 1.2               # m/s^2, when a speed limit drops
+  a_lat_max: 0.25            # m/s^2, in curves
+  a_dec: 0.3                 # m/s^2, planned braking to the goal
+  v_creep_min: 0.1           # m/s, close to the goal
+  creep_dist: 0.2            # m, at v_creep_min before the goal tolerance
+  stop_lead_time: 0.5        # s, stop this early to coast onto the goal (brake_* 0)
+  v_min_mpc: 0.05            # m/s, steering is held below this
+
+  # Car like
+  is_carlike: true # Not yet use
+  car_like:
+    steering_angle_for_rotate_min: -0.90  # Right turn (negative)
+    steering_angle_for_rotate_max: 0.70    # Left turn (positive)
+    max_trans_vel_for_rotate: 0.3 # Can be negative
+    steering_angle_tolerance: 0.05
+  xy_goal_tolerance: 0.15
+  yaw_goal_tolerance: 0.1
+  ignore_last_rotate: true

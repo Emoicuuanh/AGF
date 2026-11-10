@@ -1,0 +1,31 @@
+# Ignore tất cả các tệp không có phần mở rộng
+*
+# Nhưng giữ lại các tệp có phần mở rộng
+!*/
+!*.*
+
+*.pyc
+*.exe
+*.spec
+*.deb
+*.c
+*.o
+*.so
+*.with_bootloader.mega.hex
+
+# Nuitka
+*.build
+*.bin
+release
+dist
+
+dist
+build
+__pycache__
+obj-x86_64-linux-gnu
+temp.linux-x86_64-2.7
+debian
+.vscode/*
+# !.vscode/c_cpp_properties.json
+# !.vscode/settings.json
+# *.code-workspace

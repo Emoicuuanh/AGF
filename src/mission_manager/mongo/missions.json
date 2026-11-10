@@ -1,0 +1,38 @@
+[{
+  "_id": {
+    "$oid": "6117765328236090489a5584"
+  },
+  "name": "first move",
+  "desc": "",
+  "group": "Develop",
+  "actions": [
+    {
+      "name": "Move to position",
+      "type": "move",
+      "params": {
+        "position": "pose3",
+        "retries": 5,
+        "distance_threshold": 0.5
+      }
+    },
+    {
+      "name": "Move to position",
+      "type": "move",
+      "params": {
+        "position": "pose4",
+        "retries": 2,
+        "distance_threshold": 0.5
+      }
+    }
+  ],
+  "map": "mkac"
+},{
+  "_id": {
+    "$oid": "61230fcb2ec37dcd9c3567cd"
+  },
+  "name": "mission 1",
+  "desc": "description for mission 1",
+  "group": "Develop",
+  "actions": [],
+  "map": "map 1"
+}]

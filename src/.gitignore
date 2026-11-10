@@ -1,0 +1,23 @@
+# Packages versioned in their own git repos
+/agf_local_planner/
+/agf_plc_communication/
+/agf_system/
+/agv_mongo_backup/
+/ar_track_alvar/
+/check_error_agf/
+/correct_angle_pose/
+/detect_pallet_3d/
+/espsensorclient/
+/geometry2/
+/livox_ros_driver2/
+/modbus/
+/mrpt_slam/
+/nav350/
+/navigation/
+/path_creator/
+/pick_and_place_pallet/
+/ros_entry/
+/safety_cannon/
+/sick_scan/
+/sound_control/
+/waypoints_global_planner/

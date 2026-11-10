@@ -1,0 +1,79 @@
+---
+# mrpt_icp_slam_2d: find_package(mrpt-gui/mrpt-slam/mrpt-ros1bridge PATHS /opt/mrpt)
+- name: Check if MRPT with ros1bridge is already installed
+  ansible.builtin.find:
+    paths: "{{ mrpt_prefix }}"
+    patterns: "mrpt-ros1bridge-config.cmake"
+    recurse: true
+  register: mrpt_ros1bridge
+
+- name: Build MRPT {{ mrpt_version }} into {{ mrpt_prefix }}
+  when: mrpt_ros1bridge.matched == 0
+  block:
+    - name: Install MRPT build dependencies
+      ansible.builtin.apt:
+        name:
+          - libopencv-dev
+          - libeigen3-dev
+          - libwxgtk3.0-gtk3-dev
+          - libglfw3-dev
+          - freeglut3-dev
+          - libassimp-dev
+          - libjpeg-dev
+          - libpng-dev
+          - libftdi1-dev
+          - libusb-1.0-0-dev
+          - libudev-dev
+          - libdc1394-22-dev
+          - libavformat-dev
+          - libswscale-dev
+          - libsuitesparse-dev
+          - liboctomap-dev
+          - libtinyxml2-dev
+          - libjsoncpp-dev
+          - libpcap-dev
+          - libgtest-dev
+          - qtbase5-dev
+          - libqt5opengl5-dev
+        state: present
+
+    - name: Clone MRPT {{ mrpt_version }}
+      ansible.builtin.git:
+        repo: https://github.com/MRPT/mrpt.git
+        dest: "{{ src_build_dir }}/mrpt"
+        version: "{{ mrpt_version }}"
+        depth: 1
+        recursive: true
+
+    # ROS must be sourced so CMake builds the ros1bridge module
+    - name: Build and install MRPT (slow, 30-90 min)
+      ansible.builtin.shell: |
+        set -e
+        source /opt/ros/{{ ros_distro }}/setup.bash
+        mkdir -p build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX={{ mrpt_prefix }} \
+                 -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DMRPT_BUILD_APPLICATIONS=OFF
+        make -j{{ heavy_build_jobs }}
+        make install
+      args:
+        chdir: "{{ src_build_dir }}/mrpt"
+        executable: /bin/bash
+
+    - name: Check ros1bridge was built
+      ansible.builtin.find:
+        paths: "{{ mrpt_prefix }}"
+        patterns: "mrpt-ros1bridge-config.cmake"
+        recurse: true
+      register: mrpt_ros1bridge_after
+      failed_when: mrpt_ros1bridge_after.matched == 0
+
+- name: Add MRPT libraries to the linker path
+  ansible.builtin.copy:
+    dest: /etc/ld.so.conf.d/mrpt.conf
+    content: "{{ mrpt_prefix }}/lib\n"
+    mode: "0644"
+  register: mrpt_ld
+
+- name: Refresh linker cache
+  ansible.builtin.command: ldconfig
+  when: mrpt_ld.changed

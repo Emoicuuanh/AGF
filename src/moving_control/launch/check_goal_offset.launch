@@ -1,0 +1,17 @@
+<launch>
+    <!-- Log the robot offset to the target pose every time moving_control SUCCEEDS.
+         Offset is also published on /check_goal_offset/offset (Pose2D: x=along, y=lateral, theta=yaw) -->
+    <node name="check_goal_offset" pkg="moving_control" type="check_goal_offset.py" output="screen">
+        <param name="action_name" value="/moving_control"/>
+        <!-- used when the goal json has no params.frame_id -->
+        <param name="global_frame" value="map"/>
+        <param name="robot_frame" value="base_footprint"/>
+        <!-- wait for the robot to fully stop before reading the pose [s] -->
+        <param name="settle_time" value="1.0"/>
+        <!-- used when the goal json has no reconfigure xy_tolerance / yaw_tolerance [m], [rad] -->
+        <param name="xy_tolerance" value="0.05"/>
+        <param name="yaw_tolerance" value="0.05"/>
+        <!-- append every result to this csv, empty = off -->
+        <param name="csv_file" value="~/goal_offset.csv"/>
+    </node>
+</launch>

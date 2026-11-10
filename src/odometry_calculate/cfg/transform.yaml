@@ -1,0 +1,5 @@
+encoder_resolution: 1000
+gear_reduction: 1.0
+
+wheel_radius: 0.1
+wheel_separation: 0.415

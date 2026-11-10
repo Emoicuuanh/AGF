@@ -1,0 +1,31 @@
+<launch>
+  <!-- Clearance field check for a vertical-plane LiDAR on the AGF.
+       sim:=true starts a synthetic scan publisher for bench testing. -->
+  <arg name="scan_topic"   default="/lidar_vertical/scan"/>
+  <arg name="height_topic" default="/agf/lower_stack_height"/>
+  <arg name="fork_topic"   default="/agf/fork_height"/>
+  <arg name="enable_topic" default="/agf/clearance_enable"/>
+  <arg name="config"       default="$(find agf_clearance_field)/config/clearance_field.yaml"/>
+  <arg name="sim"          default="false"/>
+  <arg name="rviz"         default="false"/>
+
+  <node pkg="agf_clearance_field" type="clearance_field_node.py" name="clearance_field" output="screen">
+    <rosparam command="load" file="$(arg config)"/>
+    <remap from="scan"               to="$(arg scan_topic)"/>
+    <remap from="lower_stack_height" to="$(arg height_topic)"/>
+    <remap from="fork_height"        to="$(arg fork_topic)"/>
+    <remap from="enable"             to="$(arg enable_topic)"/>
+  </node>
+
+  <group if="$(arg sim)">
+    <node pkg="agf_clearance_field" type="fake_scan_pub.py" name="fake_scan" output="screen">
+      <param name="frame_id" value="lidar_vertical"/>
+      <remap from="scan"               to="$(arg scan_topic)"/>
+      <remap from="lower_stack_height" to="$(arg height_topic)"/>
+      <remap from="fork_height"        to="$(arg fork_topic)"/>
+    </node>
+  </group>
+
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find agf_clearance_field)/rviz/clearance_field.rviz"/>
+</launch>

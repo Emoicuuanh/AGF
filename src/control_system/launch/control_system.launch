@@ -1,0 +1,13 @@
+<launch>
+  <arg name="simulation" default="false" />
+  <arg if="$(arg simulation)" name="simulation_str" default="-s" />
+  <arg unless="$(arg simulation)" name="simulation_str" default="" />
+  <arg name="subfix" default="py" />
+
+  <param name="mongodb_address" value="mongodb://coffee:coffee@localhost:27017" />
+
+  <node name="control_system" pkg="control_system" type="control_system.$(arg subfix)"
+    output="screen"
+    args="$(arg simulation_str) --robot_config_file $(find control_system)/cfg/robot_config.yaml"
+  />
+</launch>

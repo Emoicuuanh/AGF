@@ -1,0 +1,14 @@
+{
+  "name": "Test drop down to C",
+  "group": "move",
+  "actions":
+  [
+    {
+      "name": "Drop down to C",
+      "type": "droping",
+      "params": {
+        "marker_pos": "DropC"
+      }
+    }
+  ]
+}

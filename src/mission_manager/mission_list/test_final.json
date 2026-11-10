@@ -1,0 +1,96 @@
+{
+  "name": "Final mission testing [Huy, Jul 2021]",
+  "group": "move",
+  "actions":
+  [
+    {
+      "name": "move to PickC",
+      "type": "move",
+      "params": {
+          "start": "Move",
+          "stop": "PickC"
+      }
+    },
+    {
+      "name": "Safety setting",
+      "type": "safety_setting",
+      "params":{
+        "safety_job": 3
+      }
+    },
+    {
+      "name": "Pick shelf 1 at C",
+      "type": "pickup",
+      "params": {
+        "marker_pos": "PickC"
+      }
+    },
+    {
+      "name": "Update shelf's footprint",
+      "type": "safety_setting",
+      "params":{
+        "footprint": "[[0.6, 0.5], [-0.6, 0.5], [-0.6, -0.5], [0.6, -0.5], [0.6, 0.5]]",
+        "safety_job": 1
+      }
+    },
+    {
+      "name": "move to XX",
+      "type": "move",
+      "params": {
+          "start": "Move",
+          "stop": "XX"
+      }
+    },
+    {
+      "name": "move to DropC",
+      "type": "move",
+      "params": {
+          "start": "Move",
+          "stop": "DropC"
+      }
+    },
+    {
+      "name": "Safety setting",
+      "type": "safety_setting",
+      "params":{
+        "safety_job": 3
+      }
+    },
+    {
+      "name": "DropC",
+      "type": "droping",
+      "params": {
+        "marker_pos": "DropC"
+      }
+    },
+    {
+      "name": "Change safety job",
+      "type": "safety_setting",
+      "params":{
+        "footprint": "[[0.506,-0.32],[0.506,0.32],[-0.454,0.32],[-0.454,-0.32],[0.506,-0.32]]",
+        "safety_job": 1
+      }
+    },
+    {
+      "name":"move to Tram sac 2",
+      "type": "move",
+      "params": {
+        "start": "Move",
+        "stop": "TramSac2"
+      }
+    },
+    {
+      "name": "Safety setting",
+      "type": "safety_setting",
+      "params":{
+        "safety_job": 4
+      }
+    },
+    {
+      "name": "TramSac2",
+      "type": "charging",
+      "params":{
+      }
+    }
+  ]
+}

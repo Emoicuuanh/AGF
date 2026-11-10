@@ -1,0 +1,25 @@
+{
+  "name": "Charge 1",
+  "group": "move",
+  "actions":
+  [
+    {
+      "name": "KiemTraViTriSac",
+      "type": "check_position_status",
+      "params":{
+        "position": {"x": 10, "y": 5.0, "theta": 0.5},
+        "desired": 0,
+        "timeout": 5.0
+      }
+    },
+    {
+      "name": "TramSac1",
+      "type": "charging",
+      "params": {
+        "minimum_time": 60,
+        "minimum_percentage": 80,
+        "charge_until_new_mission": false
+      }
+    }
+  ]
+}

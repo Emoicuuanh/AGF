@@ -1,0 +1,113 @@
+teb_local_planner:
+  action_server_name: move_base
+  action_server_msg: move_base_msgs.msg
+  action_server_prefix: MoveBase
+  reconfigure_params:
+    -
+      reconfigure_server: /move_base/TebLocalPlannerROS
+      params:
+        -
+          tag: forward_vel
+          param: max_vel_x
+        -
+          tag: backward_vel
+          param: max_vel_x_backwards
+        -
+          tag: angular_vel
+          param: max_vel_theta
+        -
+          tag: linear_acc
+          param: acc_lim_x
+        -
+          tag: angular_acc
+          param: acc_lim_theta
+        -
+          tag: xy_tolerance
+          param: xy_goal_tolerance
+        -
+          tag: yaw_tolerance
+          param: yaw_goal_tolerance
+    -
+      reconfigure_server: /move_base
+      params:
+        -
+          tag: global_planner
+          param: base_global_planner # global_planner/GlobalPlanner, carrot_planner/CarrotPlanner, mkac_planner/MkacPlanner...
+
+# mpc_local_planner:
+#   action_server_name: move_base
+#   action_server_msg: move_base_msgs.msg
+#   action_server_prefix: MoveBase
+#   reconfigure_params:
+#     -
+#       reconfigure_server: /move_base/MpcLocalPlannerROS/robot
+#       params:
+#         -
+#           tag: forward_vel
+#           param: max_vel_x
+#         -
+#           tag: backward_vel
+#           param: max_vel_x_backwards
+#         -
+#           tag:
+#           param: max_steering_rate
+#     -
+#       reconfigure_server: /move_base/MpcLocalPlannerROS/controller
+#       params:
+#         -
+#           tag:
+#           param: via_point_sep
+#         -
+#           tag:
+#           param: look_ahead_dist
+#         -
+#           tag: xy_tolerance
+#           param: xy_goal_tolerance
+#         -
+#           tag: yaw_tolerance
+#           param: yaw_goal_tolerance
+
+move_to_point:
+  action_server_name: move_to_point
+  action_server_msg: move_to_point.msg
+  action_server_prefix: MoveToPoint
+  reconfigure_params:
+    -
+      reconfigure_server: /move_to_point
+      params:
+        -
+          tag: forward_vel
+          param: max_vel_x
+        -
+          tag: backward_vel
+          param: max_vel_x_backwards
+        -
+          tag: rotate_vel
+          param: max_vel_rotate
+        -
+          tag: angular_vel
+          param: max_vel_theta
+        -
+          tag: linear_acc
+          param: acc_lim_x
+        -
+          tag: angular_acc
+          param: acc_lim_theta
+        -
+          tag: xy_tolerance
+          param: xy_goal_tolerance
+        -
+          tag: yaw_tolerance
+          param: yaw_goal_tolerance
+        -
+          tag: x_only_tolerance
+          param: x_only_tolerance
+        -
+          tag: rotate_only
+          param: rotate_only
+        -
+          tag: distance_ignore_angular
+          param: distance_ignore_angular
+        -
+          tag: max_angular_trajectory
+          param: max_angular_trajectory

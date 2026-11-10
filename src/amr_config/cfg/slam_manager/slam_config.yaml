@@ -1,0 +1,18 @@
+mapping:
+  method: gmapping
+  launch_file: roslaunch agvlidar_navigation gmapping.launch
+  ros_node:
+    - /gmapping # Main node always in top
+    - /get_marker
+  map_save_cmd: rosrun map_server map_saver -f
+
+localization:
+  method: map_server
+  launch_file: roslaunch agvlidar_navigation map_server_amcl.launch
+  ros_node: # Main node always in top
+    - /amcl
+    - /map_server
+  map_file_ext: yaml
+  image_file_input: png
+  # map_file_param: map_server don't has this param
+  # convert_map_cmd: convert png to pgm (may be)

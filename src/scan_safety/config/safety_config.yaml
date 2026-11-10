@@ -1,0 +1,65 @@
+scan_topic: '/scan'     # Scan to determine safety, detect obstacles
+scan_fov: 360           # Scan field of view
+
+publish_vel: True       # publish or not safety velocity when detected obstacle
+cmd_vel_input: '/auto_cmd_vel_mux/output'
+cmd_vel_output: '/safety_cmd_vel'
+
+# Do not change those params below
+slice_size: 5
+min_ray: 3
+
+# footprint, scan safety will ignore obstacle with in this area
+footprint: '[[0.506,-0.32],[0.506,0.32],[-0.454,0.32],[-0.454,-0.32],[0.506,-0.32]]'
+
+number_of_jobs: 3       #default: 4
+current_job: 1
+
+# job_0: for setup reconfigure
+job_0: {
+  number_of_fields: 3,
+  field_1: '[[1.0, 0.5], [-0.7, 0.5], [-0.7, -0.5], [1.0, -0.5], [1.0, 0.5]]',
+  vmax_1: 0.0,
+  field_2: '[[1.5, 0.6], [-0.8, 0.6], [-0.8, -0.6], [1.5, -0.6], [1.5, 0.6]]',
+  vmax_2: 0.2,
+  field_3: '[[2.0, 0.7], [-0.9, 0.7], [-0.9, -0.7], [2.0, -0.7], [2.0, 0.7]]',
+  vmax_3: 0.4
+}
+
+# job_1..n: only get by get_param
+# job_1: For run normal
+job_1: {
+  number_of_fields: 3,
+  field_1: '[[0.8, 0.45], [-0.55, 0.45], [-0.55, -0.45], [0.8, -0.45], [0.8, 0.45]]',
+  vmax_1: 0.0,
+  field_2: '[[1.5, 0.6], [-0.8, 0.6], [-0.8, -0.6], [1.5, -0.6], [1.5, 0.6]]',
+  vmax_2: 0.2,
+  field_3: '[[2.0, 0.7], [-0.9, 0.7], [-0.9, -0.7], [2.0, -0.7], [2.0, 0.7]]',
+  vmax_3: 0.4
+}
+
+job_2: {
+  number_of_fields: 2,
+  field_1: '[[-1.0, 0.5], [0.7, 0.5], [0.7, -0.5], [-1.0, -0.5], [-1.0, 0.5]]',
+  vmax_1: 0.0,
+  field_2: '[[-1.5, 0.6], [0.8, 0.6], [0.8, -0.6], [-1.5, -0.6], [-1.5, 0.6]]',
+  vmax_2: 0.3
+}
+
+# Job_3: Small, For pick shelf
+job_3: {
+  number_of_fields: 1,
+  field_1: '[[0.65,-0.32],[0.65,0.32],[-0.5,0.32],[-0.5,-0.32],[0.65,-0.32]]',
+  vmax_1: 0.0
+}
+
+# For charging or only forward
+job_4: {
+  number_of_fields: 3,
+  field_1: '[[1.0, 0.5], [-0.5, 0.5], [-0.5, -0.5], [1.0, -0.5], [1.0, 0.5]]',
+  vmax_1: 0.0,
+  field_2: '[[1.5, 0.6], [-0.5, 0.6], [-0.5, -0.6], [1.5, -0.6], [1.5, 0.6]]',
+  vmax_2: 0.2,
+  field_3: '[[2.0, 0.7], [-0.5, 0.7], [-0.5, -0.7], [2.0, -0.7], [2.0, 0.7]]',
+  vma2x_3: 0.4
+}

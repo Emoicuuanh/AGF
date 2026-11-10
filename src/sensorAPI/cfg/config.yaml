@@ -1,0 +1,13 @@
+sensors:
+  AGF_Sensor1:
+    topic: "/data_safety_1"
+  AGF_Sensor2:
+    topic: "/data_safety_2"
+  AGF_Sensor3:
+    topic: "/data_safety_3"
+  AGF_Sensor4:
+    topic: "/data_safety_4"
+server:
+  server_ip: "10.0.112.18"
+  server_port: 5000
+  area: "Area 1"

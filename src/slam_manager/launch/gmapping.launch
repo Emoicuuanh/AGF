@@ -1,0 +1,24 @@
+<launch>
+  <!-- Arguments -->
+  <arg name="simulation" default="false" />
+  <arg name="use_aruco_marker" default="true" />
+  <arg name="subfix" default="py" />
+
+  <!-- If /use_sim_time = false: mrpt and move_base cannot launch same time with other node in
+  simulation -->
+  <param if="$(arg simulation)" name="/use_sim_time" value="true" />
+  <param unless="$(arg simulation)" name="/use_sim_time" value="false" />
+
+  <!-- gmapping -->
+  <node pkg="gmapping" name="gmapping" type="slam_gmapping">
+    <remap from="base_frame" to="laser" />
+    <!-- initial map size, size will change when mapping automatically -->
+    <param name="xmin" value="-5" />
+    <param name="ymin" value="-5" />
+    <param name="xmax" value="5" />
+    <param name="ymax" value="5" />
+  </node>
+
+  <!-- Get Aruco marker -->
+  <node pkg="agvlidar_fiducial" type="get_marker.$(arg subfix)" name="get_marker" />
+</launch>

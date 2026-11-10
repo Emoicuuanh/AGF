@@ -1,0 +1,81 @@
+{
+  "name": "Charge 1",
+  "group": "move",
+  "actions":
+  [
+    {
+      "name": "move to PickC",
+      "type": "move",
+      "params": {
+          "start": "Move",
+          "stop": "PickC",
+          "retries": 5,
+          "distance_threshold": 0.05
+      }
+    },
+    {
+      "name": "Pick shelf 1 at C",
+      "type": "pickup",
+      "params": {
+        "marker_pos": "PickC",
+        "marker_type": "VL",
+        "shelf_footprint": "footprint1",
+        "safety_job": 3,
+        "undocking_distance": 1.0
+      }
+    },
+    {
+      "name": "Change safety job",
+      "type": "safety",
+      "params":{
+        "job": 1
+      }
+    },
+    {
+      "name": "move to XX",
+      "type": "move",
+      "params": {
+          "start": "Move",
+          "stop": "XX",
+          "retries": 5,
+          "distance_threshold": 0.05
+      }
+    },
+    {
+      "name": "move to DropC",
+      "type": "move",
+      "params": {
+          "start": "Move",
+          "stop": "DropC",
+          "retries": 5,
+          "distance_threshold": 0.05
+      }
+    },
+    {
+      "name": "DropC",
+      "type": "droping",
+      "params": {
+      }
+    },
+    {
+      "name":"move to Tram sac 2",
+      "type": "move",
+      "params": {
+        "start": "Move",
+        "stop": "TramSac2",
+        "retries": 5,
+        "distance_threshold": 0.05
+      }
+    },
+    {
+      "name": "TramSac2",
+      "type": "charging",
+      "params":{
+        "charger_name": "TramSac2",
+        "minimum_time": 60,
+        "minimum_percentage": 80,
+        "charge_until_new_mission": false
+      }
+    }
+  ]
+}

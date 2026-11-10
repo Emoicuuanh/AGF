@@ -1,0 +1,43 @@
+[{
+  "_id": {
+    "$oid": "6114e96ac6e02044b7affb83"
+  },
+  "name": "map 3",
+  "desc": "map 3"
+},{
+  "_id": {
+    "$oid": "61173ed165e82bc4b3d68ad7"
+  },
+  "name": "map 2",
+  "desc": "for testing"
+},{
+  "_id": {
+    "$oid": "611774e828236090489a557e"
+  },
+  "name": "mkac",
+  "desc": "mkac"
+},{
+  "_id": {
+    "$oid": "61223bbccbab990d506160fe"
+  },
+  "name": "map 1",
+  "desc": "map 1",
+  "info": {
+    "resolution": 0.05000000074505806,
+    "width": 200,
+    "height": 200,
+    "origin": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      }
+    }
+  }
+}]

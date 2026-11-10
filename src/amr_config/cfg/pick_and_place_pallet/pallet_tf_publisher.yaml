@@ -1,0 +1,15 @@
+laser_1_x: -0.355 #-0.30
+laser_1_y: 0.55 #0.53
+laser_1_angle_pitch : 0
+laser_1_angle_yaw: 3.135
+laser_2_x: -0.27 #-0.315
+laser_2_y: -0.015 #-0.01
+laser_2_angle_pitch: 3.1416 #3.14
+laser_2_angle_yaw : 0.0
+distance_xylanh: 0.12 #0.125
+livox_x: -0.355 #-0.25 #-0.295
+livox_y: 0.55 #0.460 #0.53
+livox_z: 0.08
+livox_roll: -0.1895129165580368 # -10.79 deg, from the Livox IMU gravity (acc -0.0317, -0.1858, 0.9745 g)
+livox_pitch: 0.030238007382436555 # 1.83 deg, Livox x axis tilted DOWN (positive = down), from the Livox IMU
+livox_yaw: 1.55 # Livox +y faces the pallet (livox_mount_yaw 1.5708 in the detector configs); was 3.135 with x facing it
